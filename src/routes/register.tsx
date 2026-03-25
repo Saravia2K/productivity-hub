@@ -1,0 +1,212 @@
+import { createFileRoute, Link, redirect } from '@tanstack/react-router'
+import { useState } from 'react'
+import { Mail, Lock, User, Building2, Zap, Eye, EyeOff } from 'lucide-react'
+import { useAuth } from '#/hooks/useAuth'
+import { Button } from '#/components/ui/button'
+import { Input } from '#/components/ui/input'
+
+export const Route = createFileRoute('/register')({
+  beforeLoad: () => {
+    if (typeof window === 'undefined') return
+    if (localStorage.getItem('accessToken')) {
+      throw redirect({ to: '/dashboard' })
+    }
+  },
+  component: RegisterPage,
+})
+
+function RegisterPage() {
+  const { register } = useAuth()
+  const [form, setForm] = useState({
+    name: '',
+    email: '',
+    password: '',
+    department: '',
+  })
+  const [showPassword, setShowPassword] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+
+  const set = (key: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) =>
+    setForm((prev) => ({ ...prev, [key]: e.target.value }))
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    if (form.password.length < 8) {
+      setError('La contraseña debe tener al menos 8 caracteres.')
+      return
+    }
+    setError('')
+    setLoading(true)
+    try {
+      await register({
+        name: form.name,
+        email: form.email,
+        password: form.password,
+        department: form.department || undefined,
+      })
+    } catch {
+      setError('No se pudo crear la cuenta. El email puede estar en uso.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="flex min-h-screen">
+      {/* Left branding panel */}
+      <div className="hidden lg:flex lg:w-1/2 flex-col justify-between bg-gradient-to-br from-[var(--sea-ink)] to-[#0d2228] p-12 relative overflow-hidden">
+        <div className="pointer-events-none absolute -right-32 -top-32 h-96 w-96 rounded-full bg-[radial-gradient(circle,rgba(79,184,178,0.18),transparent_66%)]" />
+        <div className="pointer-events-none absolute -bottom-24 -left-16 h-80 w-80 rounded-full bg-[radial-gradient(circle,rgba(47,106,74,0.2),transparent_66%)]" />
+
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--lagoon)] to-[var(--lagoon-deep)]">
+            <Zap className="h-5 w-5 text-white" />
+          </div>
+          <span className="text-xl font-bold text-white">TeamSync</span>
+        </div>
+
+        <div className="space-y-6">
+          <div className="space-y-4">
+            <p className="text-xs font-bold uppercase tracking-widest text-[var(--lagoon)]">
+              Únete hoy
+            </p>
+            <h2 className="text-4xl font-bold leading-tight text-white">
+              Construye una cultura de feedback en tu equipo
+            </h2>
+            <p className="text-base text-white/60 leading-relaxed">
+              Configura tu workspace en menos de 2 minutos y empieza a dar y recibir feedback significativo.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            {[
+              { label: 'Feedback anónimo', desc: 'Sin barreras psicológicas' },
+              { label: 'Tiempo real', desc: 'Socket.io colaborativo' },
+              { label: 'Drag & Drop', desc: 'Tablero Kanban fluido' },
+              { label: 'Roles y permisos', desc: 'Admin, Manager, Employee' },
+            ].map((item) => (
+              <div
+                key={item.label}
+                className="rounded-xl border border-white/10 bg-white/5 p-4 space-y-1"
+              >
+                <p className="text-sm font-semibold text-white">{item.label}</p>
+                <p className="text-xs text-white/50">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <p className="text-xs text-white/30">© 2025 TeamSync Feedback Hub</p>
+      </div>
+
+      {/* Right form panel */}
+      <div className="flex flex-1 items-center justify-center px-6 py-12">
+        <div className="w-full max-w-md space-y-8">
+          <div className="flex items-center gap-3 lg:hidden">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--lagoon)] to-[var(--lagoon-deep)]">
+              <Zap className="h-4 w-4 text-white" />
+            </div>
+            <span className="text-lg font-bold text-[var(--sea-ink)]">TeamSync</span>
+          </div>
+
+          <div className="space-y-2">
+            <h1 className="text-2xl font-bold text-[var(--sea-ink)]">Crea tu cuenta</h1>
+            <p className="text-sm text-[var(--sea-ink-soft)]">
+              Únete a tu equipo en TeamSync Feedback Hub
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <Input
+              label="Nombre completo"
+              type="text"
+              placeholder="Ana García"
+              value={form.name}
+              onChange={set('name')}
+              leftIcon={<User className="h-4 w-4" />}
+              required
+              autoComplete="name"
+            />
+
+            <Input
+              label="Email corporativo"
+              type="email"
+              placeholder="ana@empresa.com"
+              value={form.email}
+              onChange={set('email')}
+              leftIcon={<Mail className="h-4 w-4" />}
+              required
+              autoComplete="email"
+            />
+
+            <Input
+              label="Contraseña"
+              type={showPassword ? 'text' : 'password'}
+              placeholder="Mínimo 8 caracteres"
+              value={form.password}
+              onChange={set('password')}
+              leftIcon={<Lock className="h-4 w-4" />}
+              rightIcon={
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="cursor-pointer"
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              }
+              required
+              autoComplete="new-password"
+            />
+
+            <Input
+              label="Departamento (opcional)"
+              type="text"
+              placeholder="Ingeniería, Producto, Diseño…"
+              value={form.department}
+              onChange={set('department')}
+              leftIcon={<Building2 className="h-4 w-4" />}
+              autoComplete="organization"
+            />
+
+            {error && (
+              <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+                {error}
+              </div>
+            )}
+
+            <Button type="submit" loading={loading} className="w-full">
+              Crear cuenta
+            </Button>
+          </form>
+
+          <p className="text-center text-xs text-[var(--sea-ink-soft)]">
+            Al registrarte aceptas los{' '}
+            <span className="text-[var(--lagoon-deep)] cursor-pointer hover:underline">
+              Términos de Servicio
+            </span>{' '}
+            y la{' '}
+            <span className="text-[var(--lagoon-deep)] cursor-pointer hover:underline">
+              Política de Privacidad
+            </span>
+          </p>
+
+          <p className="text-center text-sm text-[var(--sea-ink-soft)]">
+            ¿Ya tienes cuenta?{' '}
+            <Link
+              to="/login"
+              className="font-semibold text-[var(--lagoon-deep)] hover:underline"
+            >
+              Inicia sesión
+            </Link>
+          </p>
+        </div>
+      </div>
+    </div>
+  )
+}
