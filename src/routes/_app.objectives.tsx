@@ -1,0 +1,529 @@
+import { createFileRoute } from '@tanstack/react-router'
+import { useState, useCallback } from 'react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import {
+  DndContext,
+  DragOverlay,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  closestCorners,
+  type DragStartEvent,
+  type DragEndEvent,
+} from '@dnd-kit/core'
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+import {
+  Plus,
+  GripVertical,
+  Calendar,
+  MessageCircle,
+  CheckSquare,
+  User,
+  Clock,
+} from 'lucide-react'
+import { TopBar } from '#/components/layout/TopBar'
+import { Card, CardContent } from '#/components/ui/card'
+import { Button } from '#/components/ui/button'
+import { Badge } from '#/components/ui/badge'
+import { Avatar } from '#/components/ui/avatar'
+import { Input, Textarea } from '#/components/ui/input'
+import { Select } from '#/components/ui/select'
+import { PageSpinner } from '#/components/ui/spinner'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogBody,
+  DialogFooter,
+} from '#/components/ui/dialog'
+import { objectiveService } from '#/services/objective.service'
+import { formatDate } from '#/lib/utils'
+import { cn } from '#/lib/utils'
+import type { CreateObjectiveDto, Objective, ObjectiveStatus } from '#/types'
+
+export const Route = createFileRoute('/_app/objectives')({
+  component: ObjectivesPage,
+})
+
+// ─── Column config ────────────────────────────────────────────────────────────
+const COLUMNS: { id: ObjectiveStatus; label: string; color: string }[] = [
+  { id: 'todo', label: 'Por hacer', color: '#94a3b8' },
+  { id: 'in-progress', label: 'En progreso', color: '#3b82f6' },
+  { id: 'in-review', label: 'En revisión', color: '#f59e0b' },
+  { id: 'completed', label: 'Completado', color: '#10b981' },
+]
+
+// ─── Mock data ────────────────────────────────────────────────────────────────
+const MOCK_OBJECTIVES: Objective[] = [
+  {
+    _id: 'obj1', title: 'Refactorizar API de autenticación', description: 'Migrar a JWT con refresh tokens y mejorar la seguridad del middleware.',
+    status: 'in-progress',
+    assignee: { _id: 'u1', name: 'Tú', role: 'employee', email: '', emailVerified: true, notificationPreferences: { email: true, inApp: true }, createdAt: '', updatedAt: '' },
+    dueDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 3).toISOString(),
+    subTasks: [
+      { _id: 'st1', title: 'Implementar refresh tokens', completed: true },
+      { _id: 'st2', title: 'Añadir middleware de roles', completed: false },
+      { _id: 'st3', title: 'Tests de integración', completed: false },
+    ],
+    comments: [],
+    createdAt: '', updatedAt: '',
+  },
+  {
+    _id: 'obj2', title: 'Diseño del dashboard de métricas', description: 'Crear wireframes y componentes para el panel principal.',
+    status: 'in-review',
+    assignee: { _id: 'u2', name: 'Ana García', role: 'employee', email: '', emailVerified: true, notificationPreferences: { email: true, inApp: true }, createdAt: '', updatedAt: '' },
+    dueDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 1).toISOString(),
+    subTasks: [
+      { _id: 'st4', title: 'Wireframes aprobados', completed: true },
+      { _id: 'st5', title: 'Componentes en Figma', completed: true },
+    ],
+    comments: [{ _id: 'c1', author: { _id: 'u3', name: 'Carlos', role: 'manager', email: '', emailVerified: true, notificationPreferences: { email: true, inApp: true }, createdAt: '', updatedAt: '' }, content: 'Excelente trabajo con la paleta de colores.', createdAt: '' }],
+    createdAt: '', updatedAt: '',
+  },
+  {
+    _id: 'obj3', title: 'Configurar CI/CD con GitHub Actions', description: '',
+    status: 'todo',
+    assignee: { _id: 'u3', name: 'Carlos López', role: 'manager', email: '', emailVerified: true, notificationPreferences: { email: true, inApp: true }, createdAt: '', updatedAt: '' },
+    dueDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7).toISOString(),
+    subTasks: [],
+    comments: [],
+    createdAt: '', updatedAt: '',
+  },
+  {
+    _id: 'obj4', title: 'Documentar endpoints de la API', description: 'Swagger / Postman collection para todos los recursos.',
+    status: 'completed',
+    assignee: { _id: 'u4', name: 'María Torres', role: 'employee', email: '', emailVerified: true, notificationPreferences: { email: true, inApp: true }, createdAt: '', updatedAt: '' },
+    subTasks: [
+      { _id: 'st6', title: 'Auth endpoints', completed: true },
+      { _id: 'st7', title: 'Feedback endpoints', completed: true },
+    ],
+    comments: [],
+    createdAt: '', updatedAt: '',
+  },
+]
+
+const MOCK_ASSIGNEES = [
+  { value: 'u1', label: 'Tú' },
+  { value: 'u2', label: 'Ana García' },
+  { value: 'u3', label: 'Carlos López' },
+  { value: 'u4', label: 'María Torres' },
+]
+
+// ─── Sortable objective card ──────────────────────────────────────────────────
+function ObjectiveCard({
+  objective,
+  overlay = false,
+}: {
+  objective: Objective
+  overlay?: boolean
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
+    useSortable({ id: objective._id })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.35 : 1,
+  }
+
+  const completedSubTasks = objective.subTasks.filter((s) => s.completed).length
+  const isOverdue =
+    objective.dueDate &&
+    new Date(objective.dueDate) < new Date() &&
+    objective.status !== 'completed'
+
+  return (
+    <div ref={setNodeRef} style={style}>
+      <Card
+        className={cn(
+          'select-none',
+          overlay && 'rotate-1 shadow-xl',
+          isDragging && 'ring-2 ring-[var(--lagoon-deep)]',
+        )}
+      >
+        <CardContent className="p-4 space-y-3">
+          <div className="flex items-start gap-2">
+            <button
+              {...attributes}
+              {...listeners}
+              className="mt-0.5 shrink-0 cursor-grab text-[var(--sea-ink-soft)] opacity-40 hover:opacity-100 active:cursor-grabbing"
+            >
+              <GripVertical className="h-4 w-4" />
+            </button>
+            <p className="text-sm font-medium text-[var(--sea-ink)] leading-snug flex-1">
+              {objective.title}
+            </p>
+          </div>
+
+          {objective.description && (
+            <p className="ml-6 text-xs text-[var(--sea-ink-soft)] line-clamp-2 leading-relaxed">
+              {objective.description}
+            </p>
+          )}
+
+          <div className="ml-6 flex flex-wrap items-center gap-2">
+            {/* Assignee */}
+            <div className="flex items-center gap-1.5">
+              <Avatar name={objective.assignee.name} size="xs" />
+              <span className="text-xs text-[var(--sea-ink-soft)]">
+                {objective.assignee.name}
+              </span>
+            </div>
+
+            {/* Due date */}
+            {objective.dueDate && (
+              <span
+                className={cn(
+                  'flex items-center gap-1 text-xs',
+                  isOverdue ? 'text-red-500' : 'text-[var(--sea-ink-soft)]',
+                )}
+              >
+                {isOverdue ? (
+                  <Clock className="h-3 w-3" />
+                ) : (
+                  <Calendar className="h-3 w-3" />
+                )}
+                {formatDate(objective.dueDate)}
+              </span>
+            )}
+
+            {/* Sub-tasks progress */}
+            {objective.subTasks.length > 0 && (
+              <span className="flex items-center gap-1 text-xs text-[var(--sea-ink-soft)]">
+                <CheckSquare className="h-3 w-3" />
+                {completedSubTasks}/{objective.subTasks.length}
+              </span>
+            )}
+
+            {/* Comments */}
+            {objective.comments.length > 0 && (
+              <span className="flex items-center gap-1 text-xs text-[var(--sea-ink-soft)]">
+                <MessageCircle className="h-3 w-3" />
+                {objective.comments.length}
+              </span>
+            )}
+          </div>
+
+          {/* Sub-task progress bar */}
+          {objective.subTasks.length > 0 && (
+            <div className="ml-6">
+              <div className="h-1 w-full overflow-hidden rounded-full bg-[var(--line)]">
+                <div
+                  className="h-full rounded-full bg-[var(--lagoon-deep)] transition-all duration-300"
+                  style={{
+                    width: `${(completedSubTasks / objective.subTasks.length) * 100}%`,
+                  }}
+                />
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
+// ─── Kanban column ────────────────────────────────────────────────────────────
+function KanbanColumn({
+  status,
+  label,
+  color,
+  objectives,
+  onAdd,
+}: {
+  status: ObjectiveStatus
+  label: string
+  color: string
+  objectives: Objective[]
+  onAdd: () => void
+}) {
+  return (
+    <div className="flex flex-col gap-3 min-w-[280px] flex-1">
+      {/* Column header */}
+      <div className="flex items-center justify-between px-1">
+        <div className="flex items-center gap-2">
+          <span className="h-2.5 w-2.5 rounded-full" style={{ background: color }} />
+          <span className="text-sm font-semibold text-[var(--sea-ink)]">{label}</span>
+          <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--surface)] border border-[var(--line)] px-1.5 text-xs font-medium text-[var(--sea-ink-soft)]">
+            {objectives.length}
+          </span>
+        </div>
+        <button
+          onClick={onAdd}
+          className="rounded-lg p-1 text-[var(--sea-ink-soft)] transition-colors hover:bg-[var(--surface)] hover:text-[var(--sea-ink)]"
+          title="Añadir objetivo"
+        >
+          <Plus className="h-4 w-4" />
+        </button>
+      </div>
+
+      {/* Drop zone */}
+      <SortableContext
+        items={objectives.map((o) => o._id)}
+        strategy={verticalListSortingStrategy}
+      >
+        <div
+          className={cn(
+            'flex flex-col gap-2 rounded-2xl border-2 border-dashed p-2 min-h-[200px]',
+            'border-[var(--line)] transition-colors',
+          )}
+        >
+          {objectives.map((obj) => (
+            <ObjectiveCard key={obj._id} objective={obj} />
+          ))}
+          {objectives.length === 0 && (
+            <div className="flex flex-1 items-center justify-center py-8">
+              <p className="text-xs text-[var(--sea-ink-soft)]">Arrastra objetivos aquí</p>
+            </div>
+          )}
+        </div>
+      </SortableContext>
+    </div>
+  )
+}
+
+// ─── Create objective dialog ──────────────────────────────────────────────────
+function CreateObjectiveDialog({
+  open,
+  defaultStatus,
+  onClose,
+}: {
+  open: boolean
+  defaultStatus: ObjectiveStatus
+  onClose: () => void
+}) {
+  const qc = useQueryClient()
+  const [form, setForm] = useState<CreateObjectiveDto>({
+    title: '',
+    description: '',
+    status: defaultStatus,
+    assignee: '',
+    dueDate: '',
+  })
+  const [error, setError] = useState('')
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: objectiveService.create,
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['objectives'] })
+      onClose()
+    },
+    onError: () => setError('No se pudo crear el objetivo.'),
+  })
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    if (!form.title.trim()) { setError('El título es obligatorio.'); return }
+    if (!form.assignee) { setError('Selecciona un responsable.'); return }
+    setError('')
+    mutate({ ...form, dueDate: form.dueDate || undefined })
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Nuevo objetivo</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit}>
+          <DialogBody className="space-y-4">
+            <Input
+              label="Título"
+              placeholder="¿Qué quieres lograr?"
+              value={form.title}
+              onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
+              required
+            />
+            <Textarea
+              label="Descripción (opcional)"
+              placeholder="Contexto adicional…"
+              value={form.description}
+              onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+              rows={3}
+            />
+            <Select
+              label="Responsable"
+              options={MOCK_ASSIGNEES}
+              value={form.assignee}
+              onValueChange={(v) => setForm((f) => ({ ...f, assignee: v }))}
+              placeholder="Asignar a…"
+            />
+            <Select
+              label="Estado inicial"
+              options={COLUMNS.map((c) => ({ value: c.id, label: c.label }))}
+              value={form.status}
+              onValueChange={(v) => setForm((f) => ({ ...f, status: v as ObjectiveStatus }))}
+            />
+            <Input
+              label="Fecha límite (opcional)"
+              type="date"
+              value={form.dueDate ?? ''}
+              onChange={(e) => setForm((f) => ({ ...f, dueDate: e.target.value }))}
+              leftIcon={<Calendar className="h-4 w-4" />}
+            />
+            {error && (
+              <p className="rounded-lg border border-red-200 bg-red-50 px-4 py-2.5 text-sm text-red-600">
+                {error}
+              </p>
+            )}
+          </DialogBody>
+          <DialogFooter>
+            <Button type="button" variant="ghost" onClick={onClose}>Cancelar</Button>
+            <Button type="submit" loading={isPending} leftIcon={<Plus className="h-4 w-4" />}>
+              Crear objetivo
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+// ─── Main page ────────────────────────────────────────────────────────────────
+function ObjectivesPage() {
+  const qc = useQueryClient()
+  const [activeId, setActiveId] = useState<string | null>(null)
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [defaultStatus, setDefaultStatus] = useState<ObjectiveStatus>('todo')
+
+  const { data, isLoading } = useQuery({
+    queryKey: ['objectives'],
+    queryFn: () => objectiveService.getAll(),
+    placeholderData: {
+      data: MOCK_OBJECTIVES,
+      pagination: { total: MOCK_OBJECTIVES.length, page: 1, limit: 50, hasMore: false },
+    },
+  })
+
+  const { mutate: updateStatus } = useMutation({
+    mutationFn: ({ id, status }: { id: string; status: ObjectiveStatus }) =>
+      objectiveService.updateStatus(id, status),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: ['objectives'] }),
+  })
+
+  const objectives = data?.data ?? MOCK_OBJECTIVES
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+  )
+
+  const getColumn = useCallback(
+    (id: string): ObjectiveStatus | null => {
+      const obj = objectives.find((o) => o._id === id)
+      return obj?.status ?? null
+    },
+    [objectives],
+  )
+
+  function handleDragStart({ active }: DragStartEvent) {
+    setActiveId(active.id as string)
+  }
+
+  function handleDragEnd({ active, over }: DragEndEvent) {
+    setActiveId(null)
+    if (!over) return
+
+    const activeObj = objectives.find((o) => o._id === active.id)
+    if (!activeObj) return
+
+    // Determine target column: over could be a column id or another card's id
+    const targetStatus = (COLUMNS.some((c) => c.id === over.id)
+      ? over.id
+      : getColumn(over.id as string)) as ObjectiveStatus | null
+
+    if (targetStatus && targetStatus !== activeObj.status) {
+      // Optimistic update via queryClient
+      qc.setQueryData<typeof data>(['objectives'], (old) => {
+        if (!old) return old
+        return {
+          ...old,
+          data: old.data.map((o) =>
+            o._id === active.id ? { ...o, status: targetStatus } : o,
+          ),
+        }
+      })
+      updateStatus({ id: activeObj._id, status: targetStatus })
+    }
+  }
+
+  const activeObjective = activeId ? objectives.find((o) => o._id === activeId) : null
+
+  const openAdd = (status: ObjectiveStatus) => {
+    setDefaultStatus(status)
+    setDialogOpen(true)
+  }
+
+  if (isLoading && !data) return <PageSpinner />
+
+  return (
+    <div>
+      <TopBar
+        title="Tablero de Objetivos"
+        subtitle="Gestiona y prioriza los objetivos del equipo"
+      />
+
+      <div className="p-6">
+        <div className="mb-6 flex items-center justify-between">
+          <div className="flex gap-3">
+            {COLUMNS.map((col) => {
+              const count = objectives.filter((o) => o.status === col.id).length
+              return (
+                <div key={col.id} className="flex items-center gap-1.5 text-xs text-[var(--sea-ink-soft)]">
+                  <span className="h-2 w-2 rounded-full" style={{ background: col.color }} />
+                  <span>{col.label}:</span>
+                  <span className="font-semibold text-[var(--sea-ink)]">{count}</span>
+                </div>
+              )
+            })}
+          </div>
+          <Button
+            onClick={() => openAdd('todo')}
+            leftIcon={<Plus className="h-4 w-4" />}
+            size="sm"
+          >
+            Nuevo objetivo
+          </Button>
+        </div>
+
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCorners}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+        >
+          <div className="flex gap-4 overflow-x-auto pb-4">
+            {COLUMNS.map((col) => (
+              <KanbanColumn
+                key={col.id}
+                status={col.id}
+                label={col.label}
+                color={col.color}
+                objectives={objectives.filter((o) => o.status === col.id)}
+                onAdd={() => openAdd(col.id)}
+              />
+            ))}
+          </div>
+
+          {/* Drag overlay — shows floating card while dragging */}
+          <DragOverlay>
+            {activeObjective && (
+              <ObjectiveCard objective={activeObjective} overlay />
+            )}
+          </DragOverlay>
+        </DndContext>
+      </div>
+
+      <CreateObjectiveDialog
+        open={dialogOpen}
+        defaultStatus={defaultStatus}
+        onClose={() => setDialogOpen(false)}
+      />
+    </div>
+  )
+}
