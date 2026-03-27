@@ -9,12 +9,12 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as AppTeamsRouteImport } from './routes/_app.teams'
 import { Route as AppSettingsRouteImport } from './routes/_app.settings'
 import { Route as AppObjectivesRouteImport } from './routes/_app.objectives'
@@ -23,11 +23,6 @@ import { Route as AppFeedbackRouteImport } from './routes/_app.feedback'
 import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
 import { Route as AppAdminRouteImport } from './routes/_app.admin'
 
-const AuthCallbackRoute = AuthCallbackRouteImport.update({
-  id: '/auth/callback',
-  path: '/auth/callback',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
   path: '/register',
@@ -50,6 +45,11 @@ const AppRoute = AppRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/auth/callback',
+  path: '/auth/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppTeamsRoute = AppTeamsRouteImport.update({
@@ -91,7 +91,6 @@ const AppAdminRoute = AppAdminRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/auth/callback': typeof AuthCallbackRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/admin': typeof AppAdminRoute
@@ -101,11 +100,11 @@ export interface FileRoutesByFullPath {
   '/objectives': typeof AppObjectivesRoute
   '/settings': typeof AppSettingsRoute
   '/teams': typeof AppTeamsRoute
+  '/auth/callback': typeof AuthCallbackRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/auth/callback': typeof AuthCallbackRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/admin': typeof AppAdminRoute
@@ -115,13 +114,13 @@ export interface FileRoutesByTo {
   '/objectives': typeof AppObjectivesRoute
   '/settings': typeof AppSettingsRoute
   '/teams': typeof AppTeamsRoute
+  '/auth/callback': typeof AuthCallbackRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_app': typeof AppRouteWithChildren
   '/about': typeof AboutRoute
-  '/auth/callback': typeof AuthCallbackRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/_app/admin': typeof AppAdminRoute
@@ -131,13 +130,13 @@ export interface FileRoutesById {
   '/_app/objectives': typeof AppObjectivesRoute
   '/_app/settings': typeof AppSettingsRoute
   '/_app/teams': typeof AppTeamsRoute
+  '/auth/callback': typeof AuthCallbackRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/about'
-    | '/auth/callback'
     | '/login'
     | '/register'
     | '/admin'
@@ -147,11 +146,11 @@ export interface FileRouteTypes {
     | '/objectives'
     | '/settings'
     | '/teams'
+    | '/auth/callback'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
-    | '/auth/callback'
     | '/login'
     | '/register'
     | '/admin'
@@ -161,12 +160,12 @@ export interface FileRouteTypes {
     | '/objectives'
     | '/settings'
     | '/teams'
+    | '/auth/callback'
   id:
     | '__root__'
     | '/'
     | '/_app'
     | '/about'
-    | '/auth/callback'
     | '/login'
     | '/register'
     | '/_app/admin'
@@ -176,26 +175,20 @@ export interface FileRouteTypes {
     | '/_app/objectives'
     | '/_app/settings'
     | '/_app/teams'
+    | '/auth/callback'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AppRoute: typeof AppRouteWithChildren
   AboutRoute: typeof AboutRoute
-  AuthCallbackRoute: typeof AuthCallbackRoute
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
+  AuthCallbackRoute: typeof AuthCallbackRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/auth/callback': {
-      id: '/auth/callback'
-      path: '/auth/callback'
-      fullPath: '/auth/callback'
-      preLoaderRoute: typeof AuthCallbackRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/register': {
       id: '/register'
       path: '/register'
@@ -229,6 +222,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/callback': {
+      id: '/auth/callback'
+      path: '/auth/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_app/teams': {
@@ -309,9 +309,9 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRoute: AppRouteWithChildren,
   AboutRoute: AboutRoute,
-  AuthCallbackRoute: AuthCallbackRoute,
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
+  AuthCallbackRoute: AuthCallbackRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
