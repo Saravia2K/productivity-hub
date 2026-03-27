@@ -20,7 +20,8 @@ export const authService = {
       .patch('/auth/me/password', { currentPassword, newPassword })
       .then((r) => r.data),
 
-  googleAuth: () => {
-    window.location.href = `${import.meta.env.VITE_API_URL ?? 'http://localhost:4000/api'}/auth/google`
+  googleAuth: async () => {
+    const { data } = await apiClient.get<{ url: string }>('/auth/google')
+    window.location.href = data.url
   },
 }

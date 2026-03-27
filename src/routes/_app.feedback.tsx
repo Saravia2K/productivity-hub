@@ -33,6 +33,7 @@ import {
   DialogFooter,
 } from '#/components/ui/dialog'
 import { feedbackService } from '#/services/feedback.service'
+import { userService } from '#/services/user.service'
 import { useAuthStore } from '#/stores/auth.store'
 import { formatRelativeTime } from '#/lib/utils'
 import type { CreateFeedbackDto, Feedback, FeedbackCategory, FeedbackType } from '#/types'
@@ -40,43 +41,6 @@ import type { CreateFeedbackDto, Feedback, FeedbackCategory, FeedbackType } from
 export const Route = createFileRoute('/_app/feedback')({
   component: FeedbackPage,
 })
-
-// ─── Mock data ────────────────────────────────────────────────────────────────
-const MOCK_RECEIVED: Feedback[] = [
-  {
-    _id: '1',
-    from: { _id: 'u2', name: 'Carlos López', role: 'manager', email: '', emailVerified: true, notificationPreferences: { email: true, inApp: true }, createdAt: '', updatedAt: '' },
-    to: { _id: 'u1', name: 'Yo', role: 'employee', email: '', emailVerified: true, notificationPreferences: { email: true, inApp: true }, createdAt: '', updatedAt: '' },
-    type: 'positive',
-    category: 'leadership',
-    content: 'Hiciste un trabajo excepcional liderando la reunión de sprint. Tu capacidad para mantener al equipo enfocado y resolver conflictos fue notable.',
-    isAnonymous: false,
-    isPublic: true,
-    tags: ['liderazgo', 'comunicación'],
-    createdAt: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
-    updatedAt: '',
-  },
-  {
-    _id: '2',
-    from: { _id: 'u3', name: 'Anónimo', role: 'employee', email: '', emailVerified: true, notificationPreferences: { email: true, inApp: true }, createdAt: '', updatedAt: '' },
-    to: { _id: 'u1', name: 'Yo', role: 'employee', email: '', emailVerified: true, notificationPreferences: { email: true, inApp: true }, createdAt: '', updatedAt: '' },
-    type: 'constructive',
-    category: 'communication',
-    content: 'Considera mejorar la documentación de tus pull requests. Añadir más contexto sobre el "por qué" de los cambios ayudaría mucho al equipo en revisiones.',
-    isAnonymous: true,
-    isPublic: false,
-    tags: ['documentación', 'PR'],
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 4).toISOString(),
-    updatedAt: '',
-  },
-]
-
-const MOCK_USERS = [
-  { value: 'u2', label: 'Carlos López' },
-  { value: 'u3', label: 'Ana García' },
-  { value: 'u4', label: 'María Torres' },
-  { value: 'u5', label: 'Juan Martínez' },
-]
 
 const CATEGORY_OPTIONS = [
   { value: 'communication', label: 'Comunicación' },
@@ -164,6 +128,17 @@ function FeedbackCard({ feedback, showFrom }: { feedback: Feedback; showFrom: bo
 // ─── Send feedback dialog ─────────────────────────────────────────────────────
 function SendFeedbackDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   const qc = useQueryClient()
+  const { user: currentUser } = useAuthStore()
+
+  const { data: usersData } = useQuery({
+    queryKey: ['users-list'],
+    queryFn: () => userService.getAll({ limit: 100 }),
+    enabled: open,
+  })
+  const userOptions = (usersData?.data ?? [])
+    .filter((u) => u._id !== currentUser?._id)
+    .map((u) => ({ value: u._id, label: u.name + (u.department ? ` · ${u.department}` : '') }))
+
   const [form, setForm] = useState<CreateFeedbackDto>({
     to: '',
     type: 'positive',
@@ -216,7 +191,7 @@ function SendFeedbackDialog({ open, onClose }: { open: boolean; onClose: () => v
           <DialogBody className="space-y-4">
             <Select
               label="Para"
-              options={MOCK_USERS}
+              options={userOptions}
               value={form.to}
               onValueChange={(v) => setForm((f) => ({ ...f, to: v }))}
               placeholder="Selecciona un compañero…"
@@ -343,13 +318,11 @@ function FeedbackPage() {
   const { data: receivedData, isLoading: loadingReceived } = useQuery({
     queryKey: ['feedback-received'],
     queryFn: () => feedbackService.getReceived(),
-    placeholderData: { data: MOCK_RECEIVED, pagination: { total: 2, page: 1, limit: 20, hasMore: false } },
   })
 
   const { data: sentData, isLoading: loadingSent } = useQuery({
     queryKey: ['feedback-sent'],
     queryFn: () => feedbackService.getSent(),
-    placeholderData: { data: [], pagination: { total: 0, page: 1, limit: 20, hasMore: false } },
   })
 
   const received = receivedData?.data ?? []

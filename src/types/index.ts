@@ -137,6 +137,7 @@ export interface ChatMessage {
   author: User
   content: string
   createdAt: string
+  teamId?: string
 }
 
 // ─── Notifications ────────────────────────────────────────────────────────────

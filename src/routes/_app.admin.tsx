@@ -49,23 +49,14 @@ export const Route = createFileRoute('/_app/admin')({
   component: AdminPage,
 })
 
-// ─── Mock data ────────────────────────────────────────────────────────────────
-const MOCK_USERS: User[] = [
-  { _id: 'u1', name: 'Tú (Admin)', email: 'admin@company.com', role: 'admin', department: 'Ingeniería', emailVerified: true, notificationPreferences: { email: true, inApp: true }, createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 90).toISOString(), updatedAt: '' },
-  { _id: 'u2', name: 'Ana García', email: 'ana@company.com', role: 'employee', department: 'Diseño', emailVerified: true, notificationPreferences: { email: true, inApp: true }, createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 60).toISOString(), updatedAt: '' },
-  { _id: 'u3', name: 'Carlos López', email: 'carlos@company.com', role: 'manager', department: 'Ingeniería', emailVerified: true, notificationPreferences: { email: false, inApp: true }, createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 45).toISOString(), updatedAt: '' },
-  { _id: 'u4', name: 'María Torres', email: 'maria@company.com', role: 'employee', department: 'Producto', emailVerified: false, notificationPreferences: { email: true, inApp: false }, createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 30).toISOString(), updatedAt: '' },
-  { _id: 'u5', name: 'Laura Sánchez', email: 'laura@company.com', role: 'manager', department: 'Diseño', emailVerified: true, notificationPreferences: { email: true, inApp: true }, createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 20).toISOString(), updatedAt: '' },
-  { _id: 'u6', name: 'Roberto Kim', email: 'roberto@company.com', role: 'employee', department: 'Ingeniería', emailVerified: true, notificationPreferences: { email: true, inApp: true }, createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 10).toISOString(), updatedAt: '' },
-]
-
-const MOCK_ACTIVITY = [
-  { id: 'a1', user: 'Ana García', action: 'envió feedback a Carlos López', time: new Date(Date.now() - 1000 * 60 * 20).toISOString(), type: 'feedback' },
-  { id: 'a2', user: 'Carlos López', action: 'creó el objetivo "Migrar a PostgreSQL"', time: new Date(Date.now() - 1000 * 60 * 60).toISOString(), type: 'objective' },
-  { id: 'a3', user: 'María Torres', action: 'se unió al equipo de Producto', time: new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString(), type: 'team' },
-  { id: 'a4', user: 'Roberto Kim', action: 'completó la subtarea "Tests de integración"', time: new Date(Date.now() - 1000 * 60 * 60 * 6).toISOString(), type: 'objective' },
-  { id: 'a5', user: 'Laura Sánchez', action: 'actualizó las preferencias de notificación', time: new Date(Date.now() - 1000 * 60 * 60 * 12).toISOString(), type: 'settings' },
-]
+const ACTIVITY_DOT_COLOR: Record<string, string> = {
+  feedback_received: 'bg-[var(--lagoon)]',
+  mention: 'bg-purple-500',
+  objective_assigned: 'bg-blue-500',
+  objective_status_changed: 'bg-blue-500',
+  register: 'bg-emerald-500',
+  login: 'bg-amber-500',
+}
 
 type SortField = 'name' | 'role' | 'createdAt'
 type SortDir = 'asc' | 'desc'
@@ -158,11 +149,12 @@ function AdminPage() {
 
   const { data, isLoading } = useQuery({
     queryKey: ['admin-users'],
-    queryFn: () => userService.getAll(),
-    placeholderData: {
-      data: MOCK_USERS,
-      pagination: { total: MOCK_USERS.length, page: 1, limit: 50, hasMore: false },
-    },
+    queryFn: () => userService.getAll({ limit: 200 }),
+  })
+
+  const { data: metrics } = useQuery({
+    queryKey: ['dashboard-metrics'],
+    queryFn: userService.getDashboardMetrics,
   })
 
   const { mutate: updateRole } = useMutation({
@@ -171,7 +163,7 @@ function AdminPage() {
     onSuccess: () => void qc.invalidateQueries({ queryKey: ['admin-users'] }),
   })
 
-  const users = data?.data ?? MOCK_USERS
+  const users = data?.data ?? []
 
   const handleSort = (field: SortField) => {
     if (sortField === field) setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'))
@@ -302,27 +294,35 @@ function AdminPage() {
             </div>
           </CardHeader>
           <CardContent className="pt-0">
-            <ul className="divide-y divide-[var(--line)]">
-              {MOCK_ACTIVITY.map((entry) => (
-                <li key={entry.id} className="flex items-center gap-4 py-3">
-                  <span
-                    className={cn(
-                      'h-2 w-2 shrink-0 rounded-full',
-                      entry.type === 'feedback' && 'bg-[var(--lagoon)]',
-                      entry.type === 'objective' && 'bg-blue-500',
-                      entry.type === 'team' && 'bg-purple-500',
-                      entry.type === 'settings' && 'bg-amber-500',
-                    )}
-                  />
-                  <p className="flex-1 text-sm text-[var(--sea-ink)]">
-                    <strong>{entry.user}</strong> {entry.action}
-                  </p>
-                  <span className="shrink-0 text-xs text-[var(--sea-ink-soft)]">
-                    {formatRelativeTime(entry.time)}
-                  </span>
-                </li>
-              ))}
-            </ul>
+            {!metrics?.recentActivity?.length ? (
+              <p className="py-6 text-center text-sm text-[var(--sea-ink-soft)]">
+                Sin actividad reciente.
+              </p>
+            ) : (
+              <ul className="divide-y divide-[var(--line)]">
+                {metrics.recentActivity.map((entry) => (
+                  <li key={entry.id} className="flex items-center gap-4 py-3">
+                    <span
+                      className={cn(
+                        'h-2 w-2 shrink-0 rounded-full',
+                        ACTIVITY_DOT_COLOR[entry.type] ?? 'bg-[var(--sea-ink-soft)]',
+                      )}
+                    />
+                    <div className="flex flex-1 items-center gap-2 min-w-0">
+                      {entry.user && (
+                        <Avatar name={entry.user.name} src={entry.user.avatar} size="xs" />
+                      )}
+                      <p className="flex-1 truncate text-sm text-[var(--sea-ink)]">
+                        {entry.message}
+                      </p>
+                    </div>
+                    <span className="shrink-0 text-xs text-[var(--sea-ink-soft)]">
+                      {formatRelativeTime(entry.createdAt)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
           </CardContent>
         </Card>
       </div>

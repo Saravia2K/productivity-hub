@@ -43,6 +43,7 @@ import {
   DialogFooter,
 } from '#/components/ui/dialog'
 import { objectiveService } from '#/services/objective.service'
+import { userService } from '#/services/user.service'
 import { formatDate } from '#/lib/utils'
 import { cn } from '#/lib/utils'
 import type { CreateObjectiveDto, Objective, ObjectiveStatus } from '#/types'
@@ -57,62 +58,6 @@ const COLUMNS: { id: ObjectiveStatus; label: string; color: string }[] = [
   { id: 'in-progress', label: 'En progreso', color: '#3b82f6' },
   { id: 'in-review', label: 'En revisión', color: '#f59e0b' },
   { id: 'completed', label: 'Completado', color: '#10b981' },
-]
-
-// ─── Mock data ────────────────────────────────────────────────────────────────
-const MOCK_OBJECTIVES: Objective[] = [
-  {
-    _id: 'obj1', title: 'Refactorizar API de autenticación', description: 'Migrar a JWT con refresh tokens y mejorar la seguridad del middleware.',
-    status: 'in-progress',
-    assignee: { _id: 'u1', name: 'Tú', role: 'employee', email: '', emailVerified: true, notificationPreferences: { email: true, inApp: true }, createdAt: '', updatedAt: '' },
-    dueDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 3).toISOString(),
-    subTasks: [
-      { _id: 'st1', title: 'Implementar refresh tokens', completed: true },
-      { _id: 'st2', title: 'Añadir middleware de roles', completed: false },
-      { _id: 'st3', title: 'Tests de integración', completed: false },
-    ],
-    comments: [],
-    createdAt: '', updatedAt: '',
-  },
-  {
-    _id: 'obj2', title: 'Diseño del dashboard de métricas', description: 'Crear wireframes y componentes para el panel principal.',
-    status: 'in-review',
-    assignee: { _id: 'u2', name: 'Ana García', role: 'employee', email: '', emailVerified: true, notificationPreferences: { email: true, inApp: true }, createdAt: '', updatedAt: '' },
-    dueDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 1).toISOString(),
-    subTasks: [
-      { _id: 'st4', title: 'Wireframes aprobados', completed: true },
-      { _id: 'st5', title: 'Componentes en Figma', completed: true },
-    ],
-    comments: [{ _id: 'c1', author: { _id: 'u3', name: 'Carlos', role: 'manager', email: '', emailVerified: true, notificationPreferences: { email: true, inApp: true }, createdAt: '', updatedAt: '' }, content: 'Excelente trabajo con la paleta de colores.', createdAt: '' }],
-    createdAt: '', updatedAt: '',
-  },
-  {
-    _id: 'obj3', title: 'Configurar CI/CD con GitHub Actions', description: '',
-    status: 'todo',
-    assignee: { _id: 'u3', name: 'Carlos López', role: 'manager', email: '', emailVerified: true, notificationPreferences: { email: true, inApp: true }, createdAt: '', updatedAt: '' },
-    dueDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7).toISOString(),
-    subTasks: [],
-    comments: [],
-    createdAt: '', updatedAt: '',
-  },
-  {
-    _id: 'obj4', title: 'Documentar endpoints de la API', description: 'Swagger / Postman collection para todos los recursos.',
-    status: 'completed',
-    assignee: { _id: 'u4', name: 'María Torres', role: 'employee', email: '', emailVerified: true, notificationPreferences: { email: true, inApp: true }, createdAt: '', updatedAt: '' },
-    subTasks: [
-      { _id: 'st6', title: 'Auth endpoints', completed: true },
-      { _id: 'st7', title: 'Feedback endpoints', completed: true },
-    ],
-    comments: [],
-    createdAt: '', updatedAt: '',
-  },
-]
-
-const MOCK_ASSIGNEES = [
-  { value: 'u1', label: 'Tú' },
-  { value: 'u2', label: 'Ana García' },
-  { value: 'u3', label: 'Carlos López' },
-  { value: 'u4', label: 'María Torres' },
 ]
 
 // ─── Sortable objective card ──────────────────────────────────────────────────
@@ -299,6 +244,17 @@ function CreateObjectiveDialog({
   onClose: () => void
 }) {
   const qc = useQueryClient()
+
+  const { data: usersData } = useQuery({
+    queryKey: ['users-list'],
+    queryFn: () => userService.getAll({ limit: 100 }),
+    enabled: open,
+  })
+  const assigneeOptions = (usersData?.data ?? []).map((u) => ({
+    value: u._id,
+    label: u.name + (u.department ? ` · ${u.department}` : ''),
+  }))
+
   const [form, setForm] = useState<CreateObjectiveDto>({
     title: '',
     description: '',
@@ -349,7 +305,7 @@ function CreateObjectiveDialog({
             />
             <Select
               label="Responsable"
-              options={MOCK_ASSIGNEES}
+              options={assigneeOptions}
               value={form.assignee}
               onValueChange={(v) => setForm((f) => ({ ...f, assignee: v }))}
               placeholder="Asignar a…"
@@ -394,11 +350,7 @@ function ObjectivesPage() {
 
   const { data, isLoading } = useQuery({
     queryKey: ['objectives'],
-    queryFn: () => objectiveService.getAll(),
-    placeholderData: {
-      data: MOCK_OBJECTIVES,
-      pagination: { total: MOCK_OBJECTIVES.length, page: 1, limit: 50, hasMore: false },
-    },
+    queryFn: () => objectiveService.getAll({ limit: 100 }),
   })
 
   const { mutate: updateStatus } = useMutation({
@@ -407,7 +359,7 @@ function ObjectivesPage() {
     onSuccess: () => void qc.invalidateQueries({ queryKey: ['objectives'] }),
   })
 
-  const objectives = data?.data ?? MOCK_OBJECTIVES
+  const objectives = data?.data ?? []
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),

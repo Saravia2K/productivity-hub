@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import {
   Users,
@@ -26,55 +26,6 @@ import type { Team, ChatMessage } from '#/types'
 export const Route = createFileRoute('/_app/teams')({
   component: TeamsPage,
 })
-
-// ─── Mock data ────────────────────────────────────────────────────────────────
-const MOCK_TEAMS: Team[] = [
-  {
-    _id: 'team1',
-    name: 'Equipo de Ingeniería',
-    description: 'Backend, frontend e infraestructura',
-    manager: { _id: 'u3', name: 'Carlos López', role: 'manager', email: '', emailVerified: true, notificationPreferences: { email: true, inApp: true }, createdAt: '', updatedAt: '' },
-    members: [
-      { user: { _id: 'u1', name: 'Tú', role: 'employee', email: '', emailVerified: true, notificationPreferences: { email: true, inApp: true }, createdAt: '', updatedAt: '' }, role: 'employee', joinedAt: '' },
-      { user: { _id: 'u2', name: 'Ana García', role: 'employee', email: '', emailVerified: true, notificationPreferences: { email: true, inApp: true }, createdAt: '', updatedAt: '' }, role: 'employee', joinedAt: '' },
-      { user: { _id: 'u3', name: 'Carlos López', role: 'manager', email: '', emailVerified: true, notificationPreferences: { email: true, inApp: true }, createdAt: '', updatedAt: '' }, role: 'manager', joinedAt: '' },
-      { user: { _id: 'u4', name: 'María Torres', role: 'employee', email: '', emailVerified: true, notificationPreferences: { email: true, inApp: true }, createdAt: '', updatedAt: '' }, role: 'employee', joinedAt: '' },
-    ],
-    createdAt: '', updatedAt: '',
-  },
-  {
-    _id: 'team2',
-    name: 'Diseño de Producto',
-    description: 'UX/UI y research de usuario',
-    manager: { _id: 'u5', name: 'Laura Sánchez', role: 'manager', email: '', emailVerified: true, notificationPreferences: { email: true, inApp: true }, createdAt: '', updatedAt: '' },
-    members: [
-      { user: { _id: 'u5', name: 'Laura Sánchez', role: 'manager', email: '', emailVerified: true, notificationPreferences: { email: true, inApp: true }, createdAt: '', updatedAt: '' }, role: 'manager', joinedAt: '' },
-      { user: { _id: 'u6', name: 'Roberto Kim', role: 'employee', email: '', emailVerified: true, notificationPreferences: { email: true, inApp: true }, createdAt: '', updatedAt: '' }, role: 'employee', joinedAt: '' },
-    ],
-    createdAt: '', updatedAt: '',
-  },
-]
-
-const MOCK_MESSAGES: ChatMessage[] = [
-  {
-    _id: 'm1',
-    author: { _id: 'u3', name: 'Carlos López', role: 'manager', email: '', emailVerified: true, notificationPreferences: { email: true, inApp: true }, createdAt: '', updatedAt: '' },
-    content: '¡Buen trabajo en el sprint de esta semana, equipo! 🎉',
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
-  },
-  {
-    _id: 'm2',
-    author: { _id: 'u2', name: 'Ana García', role: 'employee', email: '', emailVerified: true, notificationPreferences: { email: true, inApp: true }, createdAt: '', updatedAt: '' },
-    content: 'Gracias! Terminé el diseño del dashboard. Lo comparto en la reunión de mañana.',
-    createdAt: new Date(Date.now() - 1000 * 60 * 45).toISOString(),
-  },
-  {
-    _id: 'm3',
-    author: { _id: 'u1', name: 'Tú', role: 'employee', email: '', emailVerified: true, notificationPreferences: { email: true, inApp: true }, createdAt: '', updatedAt: '' },
-    content: 'Perfecto, yo ya tengo casi lista la refactorización del auth. Solo me quedan los tests.',
-    createdAt: new Date(Date.now() - 1000 * 60 * 20).toISOString(),
-  },
-]
 
 // ─── Team card ────────────────────────────────────────────────────────────────
 function TeamCard({ team, selected, onSelect }: { team: Team; selected: boolean; onSelect: () => void }) {
@@ -129,19 +80,38 @@ function TeamCard({ team, selected, onSelect }: { team: Team; selected: boolean;
 // ─── Team chat panel ──────────────────────────────────────────────────────────
 function TeamChat({ team }: { team: Team }) {
   const { user } = useAuthStore()
-  const [messages, setMessages] = useState<ChatMessage[]>(MOCK_MESSAGES)
+  const [messages, setMessages] = useState<ChatMessage[]>([])
   const [input, setInput] = useState('')
+  const loadedTeamRef = useRef<string | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
 
-  // Listen for real-time chat messages from socket
+  const { data: chatHistory } = useQuery({
+    queryKey: ['team-chat', team._id],
+    queryFn: () => teamService.getChatMessages(team._id, { limit: 50 }),
+  })
+
+  // Initialise messages from API once per team
+  useEffect(() => {
+    if (chatHistory && loadedTeamRef.current !== team._id) {
+      setMessages(chatHistory.data ?? [])
+      loadedTeamRef.current = team._id
+    }
+  }, [chatHistory, team._id])
+
+  // Listen for real-time chat messages (event name is 'chat:message', filter by teamId)
+  const handleChatMessage = useCallback(
+    (msg: ChatMessage) => {
+      if (msg.teamId !== team._id) return
+      setMessages((prev) => (prev.some((m) => m._id === msg._id) ? prev : [...prev, msg]))
+    },
+    [team._id],
+  )
+
   useEffect(() => {
     const socket = getSocket()
-    const handler = (msg: ChatMessage) => {
-      setMessages((prev) => [...prev, msg])
-    }
-    socket.on(`team:${team._id}:message`, handler)
-    return () => { socket.off(`team:${team._id}:message`, handler) }
-  }, [team._id])
+    socket.on('chat:message', handleChatMessage)
+    return () => { socket.off('chat:message', handleChatMessage) }
+  }, [handleChatMessage])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -150,21 +120,14 @@ function TeamChat({ team }: { team: Team }) {
   function sendMessage() {
     const content = input.trim()
     if (!content || !user) return
-
-    // Optimistic message
-    const optimistic: ChatMessage = {
-      _id: `tmp-${Date.now()}`,
-      author: user,
-      content,
-      createdAt: new Date().toISOString(),
-    }
-    setMessages((prev) => [...prev, optimistic])
     setInput('')
 
-    // Fire & forget to backend
-    teamService.sendChatMessage(team._id, content).catch(() => {
-      setMessages((prev) => prev.filter((m) => m._id !== optimistic._id))
-    })
+    teamService
+      .sendChatMessage(team._id, content)
+      .then((msg) => {
+        setMessages((prev) => (prev.some((m) => m._id === msg._id) ? prev : [...prev, msg]))
+      })
+      .catch(() => setInput(content))
   }
 
   return (
@@ -183,7 +146,7 @@ function TeamChat({ team }: { team: Team }) {
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
         {messages.map((msg) => {
-          const isMe = msg.author._id === user?._id || msg.author.name === 'Tú'
+          const isMe = msg.author._id === user?._id
           return (
             <div
               key={msg._id}
@@ -237,10 +200,9 @@ function TeamsPage() {
   const { data: teamsData } = useQuery({
     queryKey: ['teams'],
     queryFn: teamService.getAll,
-    placeholderData: MOCK_TEAMS,
   })
 
-  const teams = teamsData ?? MOCK_TEAMS
+  const teams = teamsData ?? []
   const selectedTeam = teams.find((t) => t._id === selectedTeamId) ?? teams[0] ?? null
 
   return (

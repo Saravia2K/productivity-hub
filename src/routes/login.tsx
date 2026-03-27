@@ -2,6 +2,7 @@ import { createFileRoute, Link, redirect } from '@tanstack/react-router'
 import { useState } from 'react'
 import { Mail, Lock, Zap, Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '#/hooks/useAuth'
+import { authService } from '#/services/auth.service'
 import { Button } from '#/components/ui/button'
 import { Input } from '#/components/ui/input'
 
@@ -162,6 +163,7 @@ function LoginPage() {
 
           <button
             type="button"
+            onClick={() => void authService.googleAuth()}
             className="flex w-full items-center justify-center gap-3 rounded-lg border border-[var(--line)] bg-[var(--surface)] px-4 py-2.5 text-sm font-medium text-[var(--sea-ink)] transition-all hover:bg-[var(--surface-strong)] hover:border-[var(--lagoon-deep)]"
           >
             <svg className="h-4 w-4" viewBox="0 0 24 24">
