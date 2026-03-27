@@ -43,7 +43,7 @@ function TeamCard({ team, selected, onSelect }: { team: Team; selected: boolean;
               <p className="text-xs text-(--sea-ink-soft) mt-0.5">{team.description}</p>
             )}
           </div>
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[rgba(79,184,178,0.1)]">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[var(--lagoon-tint-10)]">
             <Users className="h-4 w-4 text-(--lagoon-deep)" />
           </div>
         </div>
@@ -213,7 +213,7 @@ function TeamsPage() {
         {/* Stats */}
         <div className="grid grid-cols-3 gap-4">
           {[
-            { label: 'Equipos', value: teams.length, icon: <Users className="h-4 w-4" />, color: '#4fb8b2' },
+            { label: 'Equipos', value: teams.length, icon: <Users className="h-4 w-4" />, color: '#1f9790' },
             { label: 'Miembros totales', value: teams.reduce((a, t) => a + t.members.length, 0), icon: <UserPlus className="h-4 w-4" />, color: '#3b82f6' },
             { label: 'Satisfacción media', value: '87%', icon: <TrendingUp className="h-4 w-4" />, color: '#10b981' },
           ].map((stat) => (
@@ -273,7 +273,7 @@ function TeamsPage() {
                   {[
                     { label: 'Feedback positivo', value: 78, color: '#10b981' },
                     { label: 'Objetivos completados', value: 65, color: '#3b82f6' },
-                    { label: 'Participación', value: 91, color: '#4fb8b2' },
+                    { label: 'Participación', value: 91, color: '#1f9790' },
                   ].map((metric) => (
                     <div key={metric.label} className="space-y-1">
                       <div className="flex items-center justify-between text-xs">

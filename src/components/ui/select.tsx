@@ -72,8 +72,8 @@ export function Select({
                   className={cn(
                     'relative flex cursor-pointer select-none items-center rounded-lg py-2 pl-8 pr-3 text-sm',
                     'text-(--sea-ink) outline-none',
-                    'focus:bg-[rgba(79,184,178,0.1)] focus:text-(--lagoon-deep)',
-                    'data-[highlighted]:bg-[rgba(79,184,178,0.1)] data-[highlighted]:text-(--lagoon-deep)',
+                    'focus:bg-[var(--lagoon-tint-10)] focus:text-(--lagoon-deep)',
+                    'data-[highlighted]:bg-[var(--lagoon-tint-10)] data-[highlighted]:text-(--lagoon-deep)',
                   )}
                 >
                   <SelectPrimitive.ItemIndicator className="absolute left-2">

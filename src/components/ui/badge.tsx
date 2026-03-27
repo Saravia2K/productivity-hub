@@ -21,17 +21,17 @@ interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
 
 const variantClasses: Record<BadgeVariant, string> = {
   default: 'bg-(--surface) text-(--sea-ink-soft) border-(--line)',
-  positive: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20',
-  constructive: 'bg-amber-500/10 text-amber-600 border-amber-500/20',
-  warning: 'bg-orange-500/10 text-orange-600 border-orange-500/20',
-  info: 'bg-[rgba(79,184,178,0.12)] text-(--lagoon-deep) border-[rgba(79,184,178,0.25)]',
-  admin: 'bg-purple-500/10 text-purple-600 border-purple-500/20',
-  manager: 'bg-blue-500/10 text-blue-600 border-blue-500/20',
-  employee: 'bg-slate-500/10 text-slate-600 border-slate-500/20',
-  todo: 'bg-slate-500/10 text-slate-600 border-slate-500/20',
-  'in-progress': 'bg-blue-500/10 text-blue-600 border-blue-500/20',
-  'in-review': 'bg-amber-500/10 text-amber-600 border-amber-500/20',
-  completed: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20',
+  positive: 'bg-[var(--badge-positive-bg)] text-[var(--badge-positive-text)] border-[var(--badge-positive-border)]',
+  constructive: 'bg-[var(--badge-constructive-bg)] text-[var(--badge-constructive-text)] border-[var(--badge-constructive-border)]',
+  warning: 'bg-[var(--badge-warning-bg)] text-[var(--badge-warning-text)] border-[var(--badge-warning-border)]',
+  info: 'bg-[var(--lagoon-tint-12)] text-(--lagoon-deep) border-[var(--lagoon-tint-24)]',
+  admin: 'bg-[var(--badge-admin-bg)] text-[var(--badge-admin-text)] border-[var(--badge-admin-border)]',
+  manager: 'bg-[var(--badge-manager-bg)] text-[var(--badge-manager-text)] border-[var(--badge-manager-border)]',
+  employee: 'bg-[var(--badge-neutral-bg)] text-[var(--badge-neutral-text)] border-[var(--badge-neutral-border)]',
+  todo: 'bg-[var(--badge-neutral-bg)] text-[var(--badge-neutral-text)] border-[var(--badge-neutral-border)]',
+  'in-progress': 'bg-[var(--badge-manager-bg)] text-[var(--badge-manager-text)] border-[var(--badge-manager-border)]',
+  'in-review': 'bg-[var(--badge-constructive-bg)] text-[var(--badge-constructive-text)] border-[var(--badge-constructive-border)]',
+  completed: 'bg-[var(--badge-positive-bg)] text-[var(--badge-positive-text)] border-[var(--badge-positive-border)]',
 }
 
 export function Badge({ variant = 'default', className, children, ...props }: BadgeProps) {

@@ -56,8 +56,9 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
   return (
     <aside
       className={cn(
-        'relative flex h-full flex-col border-r border-(--line)',
-        'bg-gradient-to-b from-(--sea-ink) to-[#0e2a31]',
+        'relative flex h-full flex-col',
+        'border-r border-[var(--sidebar-border)]',
+        'bg-gradient-to-b from-[var(--sidebar-bg-from)] to-[var(--sidebar-bg-to)]',
         'transition-[width] duration-300 ease-in-out',
         collapsed ? 'w-16' : 'w-60',
       )}
@@ -65,15 +66,15 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
       {/* Logo */}
       <div
         className={cn(
-          'flex h-16 items-center border-b border-white/10 px-4',
+          'flex h-16 items-center border-b border-[var(--sidebar-divider)] px-4',
           collapsed ? 'justify-center' : 'gap-3',
         )}
       >
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-(--lagoon) to-(--lagoon-deep)">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-[#1f9790] to-[#0c4f54]">
           <Zap className="h-4 w-4 text-white" />
         </div>
         {!collapsed && (
-          <span className="text-sm font-bold text-white tracking-tight">
+          <span className="text-sm font-bold tracking-tight" style={{ color: 'var(--sidebar-brand-text)' }}>
             TeamSync
           </span>
         )}
@@ -93,14 +94,17 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                 'transition-all duration-150',
                 collapsed ? 'justify-center' : '',
                 active
-                  ? 'bg-white/15 text-white shadow-sm'
-                  : 'text-white/60 hover:bg-white/8 hover:text-white/90',
+                  ? 'bg-[var(--sidebar-active-bg)]'
+                  : 'hover:bg-[var(--sidebar-hover-bg)]',
               )}
+              style={{
+                color: active ? 'var(--sidebar-active-text)' : 'var(--sidebar-text-muted)',
+              }}
             >
               <span className="relative shrink-0">
                 {item.icon}
                 {isNotifications && unreadCount > 0 && (
-                  <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-(--lagoon) text-[10px] font-bold text-white">
+                  <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#14696e] text-[10px] font-bold text-white">
                     {unreadCount > 9 ? '9+' : unreadCount}
                   </span>
                 )}
@@ -121,7 +125,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
       </nav>
 
       {/* Bottom section */}
-      <div className="flex flex-col gap-1 border-t border-white/10 p-2 pb-3">
+      <div className="flex flex-col gap-1 border-t border-[var(--sidebar-divider)] p-2 pb-3">
         {BOTTOM_ITEMS.map((item) => {
           if (item.adminOnly && user?.role !== 'admin') return null
           const active = isActive(item.to)
@@ -134,9 +138,12 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                 'transition-all duration-150',
                 collapsed ? 'justify-center' : '',
                 active
-                  ? 'bg-white/15 text-white'
-                  : 'text-white/60 hover:bg-white/8 hover:text-white/90',
+                  ? 'bg-[var(--sidebar-active-bg)]'
+                  : 'hover:bg-[var(--sidebar-hover-bg)]',
               )}
+              style={{
+                color: active ? 'var(--sidebar-active-text)' : 'var(--sidebar-text-muted)',
+              }}
             >
               <span className="shrink-0">{item.icon}</span>
               {!collapsed && <span>{item.label}</span>}
@@ -157,21 +164,26 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         <div
           className={cn(
             'mt-1 flex items-center rounded-xl px-3 py-2',
-            'bg-white/5',
+            'bg-[var(--sidebar-user-bg)]',
             collapsed ? 'justify-center' : 'gap-3',
           )}
         >
           <Avatar name={user?.name ?? 'U'} src={user?.avatar} size="sm" />
           {!collapsed && (
             <div className="min-w-0 flex-1">
-              <p className="truncate text-xs font-semibold text-white">{user?.name}</p>
-              <p className="truncate text-[10px] text-white/50">{user?.role}</p>
+              <p className="truncate text-xs font-semibold" style={{ color: 'var(--sidebar-text)' }}>
+                {user?.name}
+              </p>
+              <p className="truncate text-[10px]" style={{ color: 'var(--sidebar-text-muted)' }}>
+                {user?.role}
+              </p>
             </div>
           )}
           {!collapsed && (
             <button
               onClick={logout}
-              className="rounded-lg p-1 text-white/40 transition-colors hover:text-white/80"
+              className="rounded-lg p-1 transition-colors"
+              style={{ color: 'var(--sidebar-text-muted)' }}
               title="Cerrar sesión"
             >
               <LogOut className="h-4 w-4" />

@@ -55,9 +55,9 @@ function RegisterPage() {
   return (
     <div className="flex min-h-screen">
       {/* Left branding panel */}
-      <div className="hidden lg:flex lg:w-1/2 flex-col justify-between bg-linear-to-br from-(--sea-ink) to-[#0d2228] p-12 relative overflow-hidden">
-        <div className="pointer-events-none absolute -right-32 -top-32 h-96 w-96 rounded-full bg-[radial-gradient(circle,rgba(79,184,178,0.18),transparent_66%)]" />
-        <div className="pointer-events-none absolute -bottom-24 -left-16 h-80 w-80 rounded-full bg-[radial-gradient(circle,rgba(47,106,74,0.2),transparent_66%)]" />
+      <div className="hidden lg:flex lg:w-1/2 flex-col justify-between bg-linear-to-br from-[#0e2428] to-[#061014] p-12 relative overflow-hidden">
+        <div className="pointer-events-none absolute -right-32 -top-32 h-96 w-96 rounded-full bg-[radial-gradient(circle,rgba(31,151,144,0.18),transparent_66%)]" />
+        <div className="pointer-events-none absolute -bottom-24 -left-16 h-80 w-80 rounded-full bg-[radial-gradient(circle,rgba(21,90,48,0.2),transparent_66%)]" />
 
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-br from-(--lagoon) to-(--lagoon-deep)">

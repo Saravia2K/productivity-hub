@@ -46,7 +46,7 @@ export function DropdownMenuItem({
       className={cn(
         'relative flex cursor-pointer select-none items-center gap-2 rounded-lg px-3 py-2 text-sm',
         'text-(--sea-ink) outline-none transition-colors duration-100',
-        'focus:bg-[rgba(79,184,178,0.1)] focus:text-(--lagoon-deep)',
+        'focus:bg-[var(--lagoon-tint-10)] focus:text-(--lagoon-deep)',
         'data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50',
         inset && 'pl-8',
         className,
@@ -67,7 +67,7 @@ export function DropdownMenuCheckboxItem({
       className={cn(
         'relative flex cursor-pointer select-none items-center rounded-lg py-2 pl-8 pr-3 text-sm',
         'text-(--sea-ink) outline-none transition-colors',
-        'focus:bg-[rgba(79,184,178,0.1)] focus:text-(--lagoon-deep)',
+        'focus:bg-[var(--lagoon-tint-10)] focus:text-(--lagoon-deep)',
         className,
       )}
       checked={checked}
@@ -93,7 +93,7 @@ export function DropdownMenuRadioItem({
       className={cn(
         'relative flex cursor-pointer select-none items-center rounded-lg py-2 pl-8 pr-3 text-sm',
         'text-(--sea-ink) outline-none transition-colors',
-        'focus:bg-[rgba(79,184,178,0.1)] focus:text-(--lagoon-deep)',
+        'focus:bg-[var(--lagoon-tint-10)] focus:text-(--lagoon-deep)',
         className,
       )}
       {...props}
@@ -164,7 +164,7 @@ export function DropdownMenuSubTrigger({
       className={cn(
         'flex cursor-pointer select-none items-center gap-2 rounded-lg px-3 py-2 text-sm',
         'text-(--sea-ink) outline-none transition-colors',
-        'focus:bg-[rgba(79,184,178,0.1)] data-[state=open]:bg-[rgba(79,184,178,0.1)]',
+        'focus:bg-[var(--lagoon-tint-10)] data-[state=open]:bg-[var(--lagoon-tint-10)]',
         inset && 'pl-8',
         className,
       )}

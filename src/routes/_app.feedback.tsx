@@ -110,7 +110,7 @@ function FeedbackCard({ feedback, showFrom }: { feedback: Feedback; showFrom: bo
                 {feedback.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="inline-flex items-center gap-1 rounded-full bg-[rgba(79,184,178,0.08)] px-2 py-0.5 text-xs text-(--lagoon-deep)"
+                    className="inline-flex items-center gap-1 rounded-full bg-[var(--lagoon-tint-8)] px-2 py-0.5 text-xs text-(--lagoon-deep)"
                   >
                     <Tag className="h-2.5 w-2.5" />
                     {tag}
@@ -256,7 +256,7 @@ function SendFeedbackDialog({ open, onClose }: { open: boolean; onClose: () => v
                   {form.tags.map((tag) => (
                     <span
                       key={tag}
-                      className="inline-flex items-center gap-1 rounded-full bg-[rgba(79,184,178,0.08)] px-2.5 py-1 text-xs text-(--lagoon-deep)"
+                      className="inline-flex items-center gap-1 rounded-full bg-[var(--lagoon-tint-8)] px-2.5 py-1 text-xs text-(--lagoon-deep)"
                     >
                       {tag}
                       <button type="button" onClick={() => removeTag(tag)}>
@@ -376,7 +376,7 @@ function FeedbackPage() {
         {/* Stats row */}
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {[
-            { label: 'Recibidos', value: received.length, color: '#4fb8b2' },
+            { label: 'Recibidos', value: received.length, color: '#1f9790' },
             { label: 'Enviados', value: sent.length, color: '#3b82f6' },
             { label: 'Positivos', value: received.filter((f) => f.type === 'positive').length, color: '#10b981' },
             { label: 'Constructivos', value: received.filter((f) => f.type === 'constructive').length, color: '#f59e0b' },
@@ -402,10 +402,10 @@ function FeedbackPage() {
         <Tabs defaultValue="received">
           <TabsList>
             <TabsTrigger value="received">
-              Recibido <span className="ml-1.5 rounded-full bg-[rgba(79,184,178,0.15)] px-1.5 py-0.5 text-[10px]">{received.length}</span>
+              Recibido <span className="ml-1.5 rounded-full bg-[var(--lagoon-tint-15)] px-1.5 py-0.5 text-[10px]">{received.length}</span>
             </TabsTrigger>
             <TabsTrigger value="sent">
-              Enviado <span className="ml-1.5 rounded-full bg-[rgba(79,184,178,0.15)] px-1.5 py-0.5 text-[10px]">{sent.length}</span>
+              Enviado <span className="ml-1.5 rounded-full bg-[var(--lagoon-tint-15)] px-1.5 py-0.5 text-[10px]">{sent.length}</span>
             </TabsTrigger>
           </TabsList>
 

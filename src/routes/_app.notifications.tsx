@@ -77,7 +77,7 @@ const TYPE_ICON: Record<NotificationType, React.ReactNode> = {
 }
 
 const TYPE_COLOR: Record<NotificationType, string> = {
-  feedback_received: '#4fb8b2',
+  feedback_received: '#1f9790',
   objective_assigned: '#3b82f6',
   mention: '#8b5cf6',
   objective_status_changed: '#10b981',
@@ -108,7 +108,7 @@ function NotificationItem({
         'group flex items-start gap-4 rounded-2xl border p-4 transition-all',
         notification.read
           ? 'border-(--line) bg-transparent'
-          : 'border-(--lagoon-deep)/20 bg-[rgba(79,184,178,0.04)]',
+          : 'border-(--lagoon-deep)/20 bg-[var(--lagoon-tint-4)]',
       )}
     >
       {/* Icon */}
@@ -286,7 +286,7 @@ function NotificationsPage() {
         {/* Preferences hint */}
         <Card>
           <CardContent className="flex items-center gap-4 py-4">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[rgba(79,184,178,0.1)]">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--lagoon-tint-10)]">
               <Bell className="h-5 w-5 text-(--lagoon-deep)" />
             </div>
             <div className="flex-1">

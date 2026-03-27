@@ -212,7 +212,7 @@ function DashboardPage() {
                 </div>
                 <div className="flex gap-3 text-xs text-(--sea-ink-soft)">
                   <span className="flex items-center gap-1.5">
-                    <span className="h-2 w-2 rounded-full bg-[#4fb8b2]" />
+                    <span className="h-2 w-2 rounded-full bg-[#1f9790]" />
                     Positivo
                   </span>
                   <span className="flex items-center gap-1.5">
@@ -227,15 +227,15 @@ function DashboardPage() {
                 <AreaChart data={data.feedbackTrend} margin={{ top: 4, right: 12, bottom: 0, left: -16 }}>
                   <defs>
                     <linearGradient id="colorPositive" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#4fb8b2" stopOpacity={0.25} />
-                      <stop offset="95%" stopColor="#4fb8b2" stopOpacity={0} />
+                      <stop offset="5%" stopColor="#1f9790" stopOpacity={0.25} />
+                      <stop offset="95%" stopColor="#1f9790" stopOpacity={0} />
                     </linearGradient>
                     <linearGradient id="colorConstructive" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.2} />
                       <stop offset="95%" stopColor="#f59e0b" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(23,58,64,0.08)" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(14,36,40,0.08)" />
                   <XAxis dataKey="month" tick={{ fontSize: 11, fill: 'var(--sea-ink-soft)' }} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fontSize: 11, fill: 'var(--sea-ink-soft)' }} axisLine={false} tickLine={false} />
                   <Tooltip
@@ -247,7 +247,7 @@ function DashboardPage() {
                       color: 'var(--sea-ink)',
                     }}
                   />
-                  <Area type="monotone" dataKey="positive" stroke="#4fb8b2" strokeWidth={2} fill="url(#colorPositive)" name="Positivo" />
+                  <Area type="monotone" dataKey="positive" stroke="#1f9790" strokeWidth={2} fill="url(#colorPositive)" name="Positivo" />
                   <Area type="monotone" dataKey="constructive" stroke="#f59e0b" strokeWidth={2} fill="url(#colorConstructive)" name="Constructivo" />
                 </AreaChart>
               </ResponsiveContainer>
@@ -317,7 +317,7 @@ function DashboardPage() {
             <CardHeader className="p-5">
               <div className="flex items-center justify-between">
                 <CardTitle>Actividad reciente</CardTitle>
-                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[rgba(79,184,178,0.12)]">
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--lagoon-tint-12)]">
                   <Zap className="h-3 w-3 text-(--lagoon-deep)" />
                 </span>
               </div>
@@ -329,7 +329,7 @@ function DashboardPage() {
                     {item.user ? (
                       <Avatar name={item.user.name} src={item.user.avatar} size="sm" />
                     ) : (
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[rgba(79,184,178,0.12)]">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--lagoon-tint-12)]">
                         <Clock className="h-4 w-4 text-(--lagoon-deep)" />
                       </div>
                     )}
@@ -356,7 +356,7 @@ function DashboardPage() {
                   label: 'Dar feedback',
                   desc: 'Comparte tu perspectiva',
                   to: '/feedback',
-                  color: '#4fb8b2',
+                  color: '#1f9790',
                   icon: <MessageSquarePlus className="h-5 w-5" />,
                 },
                 {
@@ -377,7 +377,7 @@ function DashboardPage() {
                 <Link
                   key={action.to}
                   to={action.to}
-                  className="flex items-center gap-3 rounded-xl border border-(--line) p-3 transition-all hover:border-(--lagoon-deep) hover:bg-[rgba(79,184,178,0.04)]"
+                  className="flex items-center gap-3 rounded-xl border border-(--line) p-3 transition-all hover:border-(--lagoon-deep) hover:bg-[var(--lagoon-tint-4)]"
                 >
                   <div
                     className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
@@ -419,7 +419,7 @@ function DashboardPage() {
                 <path
                   d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                   fill="none"
-                  stroke="#4fb8b2"
+                  stroke="#1f9790"
                   strokeWidth="3"
                   strokeDasharray={`${data.teamSatisfaction}, 100`}
                 />

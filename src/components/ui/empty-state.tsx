@@ -23,7 +23,7 @@ export function EmptyState({ icon, title, description, action, className }: Empt
       )}
     >
       {icon && (
-        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[rgba(79,184,178,0.1)] text-(--lagoon-deep)">
+        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--lagoon-tint-10)] text-(--lagoon-deep)">
           {icon}
         </div>
       )}

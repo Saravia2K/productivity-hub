@@ -204,7 +204,7 @@ function AdminPage() {
         {/* Stats */}
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           {[
-            { label: 'Total usuarios', value: users.length, icon: <Users className="h-5 w-5" />, color: '#4fb8b2' },
+            { label: 'Total usuarios', value: users.length, icon: <Users className="h-5 w-5" />, color: '#1f9790' },
             { label: 'Administradores', value: roleCount('admin'), icon: <ShieldCheck className="h-5 w-5" />, color: '#8b5cf6' },
             { label: 'Managers', value: roleCount('manager'), icon: <Users className="h-5 w-5" />, color: '#3b82f6' },
             { label: 'Empleados', value: roleCount('employee'), icon: <Users className="h-5 w-5" />, color: '#10b981' },
