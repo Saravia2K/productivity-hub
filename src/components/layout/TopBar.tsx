@@ -15,24 +15,24 @@ export function TopBar({ title, subtitle }: TopBarProps) {
   return (
     <header
       className={cn(
-        'flex h-16 items-center justify-between border-b border-[var(--line)] px-6',
-        'bg-[var(--header-bg)] backdrop-blur-md',
+        'flex h-16 items-center justify-between border-b border-(--line) px-6',
+        'bg-(--header-bg) backdrop-blur-md',
       )}
     >
       {/* Page title */}
       <div>
-        <h1 className="text-base font-semibold text-[var(--sea-ink)] leading-tight">
+        <h1 className="text-base font-semibold text-(--sea-ink) leading-tight">
           {title}
         </h1>
         {subtitle && (
-          <p className="text-xs text-[var(--sea-ink-soft)]">{subtitle}</p>
+          <p className="text-xs text-(--sea-ink-soft)">{subtitle}</p>
         )}
       </div>
 
       {/* Actions */}
       <div className="flex items-center gap-2">
         {/* Search placeholder */}
-        <button className="flex h-8 items-center gap-2 rounded-lg border border-[var(--line)] bg-[var(--surface)] px-3 text-sm text-[var(--sea-ink-soft)] transition-colors hover:border-[var(--lagoon-deep)] hover:text-[var(--sea-ink)]">
+        <button className="flex h-8 items-center gap-2 rounded-lg border border-(--line) bg-(--surface) px-3 text-sm text-(--sea-ink-soft) transition-colors hover:border-(--lagoon-deep) hover:text-(--sea-ink)">
           <Search className="h-3.5 w-3.5" />
           <span className="hidden text-xs sm:block">Buscar…</span>
         </button>
@@ -40,11 +40,11 @@ export function TopBar({ title, subtitle }: TopBarProps) {
         {/* Notifications bell */}
         <Link
           to="/notifications"
-          className="relative flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--line)] bg-[var(--surface)] text-[var(--sea-ink-soft)] transition-colors hover:text-[var(--sea-ink)]"
+          className="relative flex h-8 w-8 items-center justify-center rounded-lg border border-(--line) bg-(--surface) text-(--sea-ink-soft) transition-colors hover:text-(--sea-ink)"
         >
           <Bell className="h-4 w-4" />
           {unreadCount > 0 && (
-            <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-[var(--lagoon-deep)] text-[10px] font-bold text-white">
+            <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-(--lagoon-deep) text-[10px] font-bold text-white">
               {unreadCount > 9 ? '9+' : unreadCount}
             </span>
           )}

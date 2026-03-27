@@ -20,8 +20,8 @@ export function DropdownMenuContent({
       <DropdownMenuPrimitive.Content
         sideOffset={sideOffset}
         className={cn(
-          'z-50 min-w-[10rem] overflow-hidden rounded-xl border border-[var(--line)]',
-          'bg-[var(--surface-strong)] p-1 shadow-xl',
+          'z-50 min-w-[10rem] overflow-hidden rounded-xl border border-(--line)',
+          'bg-(--surface-strong) p-1 shadow-xl',
           'data-[state=open]:animate-in data-[state=closed]:animate-out',
           'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
           'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
@@ -45,8 +45,8 @@ export function DropdownMenuItem({
     <DropdownMenuPrimitive.Item
       className={cn(
         'relative flex cursor-pointer select-none items-center gap-2 rounded-lg px-3 py-2 text-sm',
-        'text-[var(--sea-ink)] outline-none transition-colors duration-100',
-        'focus:bg-[rgba(79,184,178,0.1)] focus:text-[var(--lagoon-deep)]',
+        'text-(--sea-ink) outline-none transition-colors duration-100',
+        'focus:bg-[rgba(79,184,178,0.1)] focus:text-(--lagoon-deep)',
         'data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50',
         inset && 'pl-8',
         className,
@@ -66,8 +66,8 @@ export function DropdownMenuCheckboxItem({
     <DropdownMenuPrimitive.CheckboxItem
       className={cn(
         'relative flex cursor-pointer select-none items-center rounded-lg py-2 pl-8 pr-3 text-sm',
-        'text-[var(--sea-ink)] outline-none transition-colors',
-        'focus:bg-[rgba(79,184,178,0.1)] focus:text-[var(--lagoon-deep)]',
+        'text-(--sea-ink) outline-none transition-colors',
+        'focus:bg-[rgba(79,184,178,0.1)] focus:text-(--lagoon-deep)',
         className,
       )}
       checked={checked}
@@ -92,8 +92,8 @@ export function DropdownMenuRadioItem({
     <DropdownMenuPrimitive.RadioItem
       className={cn(
         'relative flex cursor-pointer select-none items-center rounded-lg py-2 pl-8 pr-3 text-sm',
-        'text-[var(--sea-ink)] outline-none transition-colors',
-        'focus:bg-[rgba(79,184,178,0.1)] focus:text-[var(--lagoon-deep)]',
+        'text-(--sea-ink) outline-none transition-colors',
+        'focus:bg-[rgba(79,184,178,0.1)] focus:text-(--lagoon-deep)',
         className,
       )}
       {...props}
@@ -118,7 +118,7 @@ export function DropdownMenuLabel({
   return (
     <DropdownMenuPrimitive.Label
       className={cn(
-        'px-3 py-1.5 text-xs font-semibold text-[var(--sea-ink-soft)] uppercase tracking-wider',
+        'px-3 py-1.5 text-xs font-semibold text-(--sea-ink-soft) uppercase tracking-wider',
         inset && 'pl-8',
         className,
       )}
@@ -133,7 +133,7 @@ export function DropdownMenuSeparator({
 }: React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Separator>) {
   return (
     <DropdownMenuPrimitive.Separator
-      className={cn('-mx-1 my-1 h-px bg-[var(--line)]', className)}
+      className={cn('-mx-1 my-1 h-px bg-(--line)', className)}
       {...props}
     />
   )
@@ -145,7 +145,7 @@ export function DropdownMenuShortcut({
 }: React.HTMLAttributes<HTMLSpanElement>) {
   return (
     <span
-      className={cn('ml-auto text-xs tracking-widest text-[var(--sea-ink-soft)] opacity-60', className)}
+      className={cn('ml-auto text-xs tracking-widest text-(--sea-ink-soft) opacity-60', className)}
       {...props}
     />
   )
@@ -163,7 +163,7 @@ export function DropdownMenuSubTrigger({
     <DropdownMenuPrimitive.SubTrigger
       className={cn(
         'flex cursor-pointer select-none items-center gap-2 rounded-lg px-3 py-2 text-sm',
-        'text-[var(--sea-ink)] outline-none transition-colors',
+        'text-(--sea-ink) outline-none transition-colors',
         'focus:bg-[rgba(79,184,178,0.1)] data-[state=open]:bg-[rgba(79,184,178,0.1)]',
         inset && 'pl-8',
         className,
@@ -183,8 +183,8 @@ export function DropdownMenuSubContent({
   return (
     <DropdownMenuPrimitive.SubContent
       className={cn(
-        'z-50 min-w-[8rem] overflow-hidden rounded-xl border border-[var(--line)]',
-        'bg-[var(--surface-strong)] p-1 shadow-xl',
+        'z-50 min-w-[8rem] overflow-hidden rounded-xl border border-(--line)',
+        'bg-(--surface-strong) p-1 shadow-xl',
         'data-[state=open]:animate-in data-[state=closed]:animate-out',
         'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
         className,

@@ -55,12 +55,12 @@ function RegisterPage() {
   return (
     <div className="flex min-h-screen">
       {/* Left branding panel */}
-      <div className="hidden lg:flex lg:w-1/2 flex-col justify-between bg-gradient-to-br from-[var(--sea-ink)] to-[#0d2228] p-12 relative overflow-hidden">
+      <div className="hidden lg:flex lg:w-1/2 flex-col justify-between bg-linear-to-br from-(--sea-ink) to-[#0d2228] p-12 relative overflow-hidden">
         <div className="pointer-events-none absolute -right-32 -top-32 h-96 w-96 rounded-full bg-[radial-gradient(circle,rgba(79,184,178,0.18),transparent_66%)]" />
         <div className="pointer-events-none absolute -bottom-24 -left-16 h-80 w-80 rounded-full bg-[radial-gradient(circle,rgba(47,106,74,0.2),transparent_66%)]" />
 
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--lagoon)] to-[var(--lagoon-deep)]">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-br from-(--lagoon) to-(--lagoon-deep)">
             <Zap className="h-5 w-5 text-white" />
           </div>
           <span className="text-xl font-bold text-white">TeamSync</span>
@@ -68,7 +68,7 @@ function RegisterPage() {
 
         <div className="space-y-6">
           <div className="space-y-4">
-            <p className="text-xs font-bold uppercase tracking-widest text-[var(--lagoon)]">
+            <p className="text-xs font-bold uppercase tracking-widest text-(--lagoon)">
               Únete hoy
             </p>
             <h2 className="text-4xl font-bold leading-tight text-white">
@@ -104,15 +104,15 @@ function RegisterPage() {
       <div className="flex flex-1 items-center justify-center px-6 py-12">
         <div className="w-full max-w-md space-y-8">
           <div className="flex items-center gap-3 lg:hidden">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--lagoon)] to-[var(--lagoon-deep)]">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-linear-to-br from-(--lagoon) to-(--lagoon-deep)">
               <Zap className="h-4 w-4 text-white" />
             </div>
-            <span className="text-lg font-bold text-[var(--sea-ink)]">TeamSync</span>
+            <span className="text-lg font-bold text-(--sea-ink)">TeamSync</span>
           </div>
 
           <div className="space-y-2">
-            <h1 className="text-2xl font-bold text-[var(--sea-ink)]">Crea tu cuenta</h1>
-            <p className="text-sm text-[var(--sea-ink-soft)]">
+            <h1 className="text-2xl font-bold text-(--sea-ink)">Crea tu cuenta</h1>
+            <p className="text-sm text-(--sea-ink-soft)">
               Únete a tu equipo en TeamSync Feedback Hub
             </p>
           </div>
@@ -185,22 +185,22 @@ function RegisterPage() {
             </Button>
           </form>
 
-          <p className="text-center text-xs text-[var(--sea-ink-soft)]">
+          <p className="text-center text-xs text-(--sea-ink-soft)">
             Al registrarte aceptas los{' '}
-            <span className="text-[var(--lagoon-deep)] cursor-pointer hover:underline">
+            <span className="text-(--lagoon-deep) cursor-pointer hover:underline">
               Términos de Servicio
             </span>{' '}
             y la{' '}
-            <span className="text-[var(--lagoon-deep)] cursor-pointer hover:underline">
+            <span className="text-(--lagoon-deep) cursor-pointer hover:underline">
               Política de Privacidad
             </span>
           </p>
 
-          <p className="text-center text-sm text-[var(--sea-ink-soft)]">
+          <p className="text-center text-sm text-(--sea-ink-soft)">
             ¿Ya tienes cuenta?{' '}
             <Link
               to="/login"
-              className="font-semibold text-[var(--lagoon-deep)] hover:underline"
+              className="font-semibold text-(--lagoon-deep) hover:underline"
             >
               Inicia sesión
             </Link>

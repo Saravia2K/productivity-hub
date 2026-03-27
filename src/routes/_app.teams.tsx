@@ -33,18 +33,18 @@ function TeamCard({ team, selected, onSelect }: { team: Team; selected: boolean;
     <Card
       hoverable
       onClick={onSelect}
-      className={selected ? 'border-[var(--lagoon-deep)] ring-1 ring-[var(--lagoon-deep)]' : ''}
+      className={selected ? 'border-(--lagoon-deep) ring-1 ring-(--lagoon-deep)' : ''}
     >
       <CardContent className="p-4 space-y-3">
         <div className="flex items-start justify-between gap-2">
           <div>
-            <h3 className="text-sm font-semibold text-[var(--sea-ink)]">{team.name}</h3>
+            <h3 className="text-sm font-semibold text-(--sea-ink)">{team.name}</h3>
             {team.description && (
-              <p className="text-xs text-[var(--sea-ink-soft)] mt-0.5">{team.description}</p>
+              <p className="text-xs text-(--sea-ink-soft) mt-0.5">{team.description}</p>
             )}
           </div>
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[rgba(79,184,178,0.1)]">
-            <Users className="h-4 w-4 text-[var(--lagoon-deep)]" />
+            <Users className="h-4 w-4 text-(--lagoon-deep)" />
           </div>
         </div>
 
@@ -55,21 +55,21 @@ function TeamCard({ team, selected, onSelect }: { team: Team; selected: boolean;
                 key={m.user._id}
                 name={m.user.name}
                 size="xs"
-                className="ring-2 ring-[var(--surface-strong)]"
+                className="ring-2 ring-(--surface-strong)"
               />
             ))}
             {team.members.length > 4 && (
-              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--surface)] ring-2 ring-[var(--surface-strong)] text-[10px] font-medium text-[var(--sea-ink-soft)]">
+              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-(--surface) ring-2 ring-(--surface-strong) text-[10px] font-medium text-(--sea-ink-soft)">
                 +{team.members.length - 4}
               </div>
             )}
           </div>
-          <span className="text-xs text-[var(--sea-ink-soft)]">{team.members.length} miembros</span>
+          <span className="text-xs text-(--sea-ink-soft)">{team.members.length} miembros</span>
         </div>
 
         <div className="flex items-center gap-1.5">
           <Crown className="h-3.5 w-3.5 text-amber-500" />
-          <span className="text-xs text-[var(--sea-ink-soft)]">{team.manager.name}</span>
+          <span className="text-xs text-(--sea-ink-soft)">{team.manager.name}</span>
           <Badge variant="manager" className="ml-auto">Manager</Badge>
         </div>
       </CardContent>
@@ -132,9 +132,9 @@ function TeamChat({ team }: { team: Team }) {
 
   return (
     <Card className="flex flex-col h-full max-h-[480px]">
-      <CardHeader className="p-4 border-b border-[var(--line)]">
+      <CardHeader className="p-4 border-b border-(--line)">
         <div className="flex items-center gap-2">
-          <MessageCircle className="h-4 w-4 text-[var(--lagoon-deep)]" />
+          <MessageCircle className="h-4 w-4 text-(--lagoon-deep)" />
           <CardTitle className="text-sm">Canal del equipo</CardTitle>
           <span className="ml-auto flex items-center gap-1 text-xs text-emerald-500">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
@@ -155,18 +155,18 @@ function TeamChat({ team }: { team: Team }) {
               {!isMe && <Avatar name={msg.author.name} size="xs" />}
               <div className={`max-w-[75%] space-y-1 ${isMe ? 'items-end' : 'items-start'} flex flex-col`}>
                 {!isMe && (
-                  <span className="text-[10px] text-[var(--sea-ink-soft)] ml-1">{msg.author.name}</span>
+                  <span className="text-[10px] text-(--sea-ink-soft) ml-1">{msg.author.name}</span>
                 )}
                 <div
                   className={`rounded-2xl px-3 py-2 text-sm leading-relaxed ${
                     isMe
-                      ? 'bg-[var(--lagoon-deep)] text-white rounded-br-sm'
-                      : 'bg-[var(--surface)] border border-[var(--line)] text-[var(--sea-ink)] rounded-bl-sm'
+                      ? 'bg-(--lagoon-deep) text-white rounded-br-sm'
+                      : 'bg-(--surface) border border-(--line) text-(--sea-ink) rounded-bl-sm'
                   }`}
                 >
                   {msg.content}
                 </div>
-                <span className="text-[10px] text-[var(--sea-ink-soft)] mx-1">
+                <span className="text-[10px] text-(--sea-ink-soft) mx-1">
                   {formatRelativeTime(msg.createdAt)}
                 </span>
               </div>
@@ -177,7 +177,7 @@ function TeamChat({ team }: { team: Team }) {
       </div>
 
       {/* Input */}
-      <div className="border-t border-[var(--line)] p-3 flex gap-2">
+      <div className="border-t border-(--line) p-3 flex gap-2">
         <Input
           placeholder="Escribe un mensaje…"
           value={input}
@@ -223,8 +223,8 @@ function TeamsPage() {
                   {stat.icon}
                 </div>
                 <div>
-                  <p className="text-xl font-bold text-[var(--sea-ink)]">{stat.value}</p>
-                  <p className="text-xs text-[var(--sea-ink-soft)]">{stat.label}</p>
+                  <p className="text-xl font-bold text-(--sea-ink)">{stat.value}</p>
+                  <p className="text-xs text-(--sea-ink-soft)">{stat.label}</p>
                 </div>
               </CardContent>
             </Card>
@@ -235,7 +235,7 @@ function TeamsPage() {
           {/* Team list */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-[var(--sea-ink)]">Tus equipos</h2>
+              <h2 className="text-sm font-semibold text-(--sea-ink)">Tus equipos</h2>
               <Button variant="outline" size="sm" leftIcon={<Plus className="h-4 w-4" />}>
                 Nuevo equipo
               </Button>
@@ -265,7 +265,7 @@ function TeamsPage() {
               <Card>
                 <CardHeader className="p-4">
                   <div className="flex items-center gap-2">
-                    <BarChart3 className="h-4 w-4 text-[var(--lagoon-deep)]" />
+                    <BarChart3 className="h-4 w-4 text-(--lagoon-deep)" />
                     <CardTitle className="text-sm">Métricas — {selectedTeam.name}</CardTitle>
                   </div>
                 </CardHeader>
@@ -277,10 +277,10 @@ function TeamsPage() {
                   ].map((metric) => (
                     <div key={metric.label} className="space-y-1">
                       <div className="flex items-center justify-between text-xs">
-                        <span className="text-[var(--sea-ink-soft)]">{metric.label}</span>
-                        <span className="font-semibold text-[var(--sea-ink)]">{metric.value}%</span>
+                        <span className="text-(--sea-ink-soft)">{metric.label}</span>
+                        <span className="font-semibold text-(--sea-ink)">{metric.value}%</span>
                       </div>
-                      <div className="h-1.5 w-full overflow-hidden rounded-full bg-[var(--line)]">
+                      <div className="h-1.5 w-full overflow-hidden rounded-full bg-(--line)">
                         <div
                           className="h-full rounded-full transition-all duration-500"
                           style={{ width: `${metric.value}%`, background: metric.color }}
@@ -316,17 +316,17 @@ function TeamsPage() {
                 {selectedTeam.members.map((member) => (
                   <div
                     key={member.user._id}
-                    className="flex items-center gap-3 rounded-xl border border-[var(--line)] p-3"
+                    className="flex items-center gap-3 rounded-xl border border-(--line) p-3"
                   >
                     <Avatar name={member.user.name} size="sm" />
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium text-[var(--sea-ink)]">
+                      <p className="truncate text-sm font-medium text-(--sea-ink)">
                         {member.user.name}
                         {member.user._id === selectedTeam.manager._id && (
                           <Crown className="ml-1.5 inline h-3 w-3 text-amber-500" />
                         )}
                       </p>
-                      <p className="text-xs text-[var(--sea-ink-soft)]">{member.user.department ?? 'Sin departamento'}</p>
+                      <p className="text-xs text-(--sea-ink-soft)">{member.user.department ?? 'Sin departamento'}</p>
                     </div>
                     <Badge variant={member.role}>{member.role}</Badge>
                   </div>

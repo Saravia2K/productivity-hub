@@ -56,8 +56,8 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
   return (
     <aside
       className={cn(
-        'relative flex h-full flex-col border-r border-[var(--line)]',
-        'bg-gradient-to-b from-[var(--sea-ink)] to-[#0e2a31]',
+        'relative flex h-full flex-col border-r border-(--line)',
+        'bg-gradient-to-b from-(--sea-ink) to-[#0e2a31]',
         'transition-[width] duration-300 ease-in-out',
         collapsed ? 'w-16' : 'w-60',
       )}
@@ -69,7 +69,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
           collapsed ? 'justify-center' : 'gap-3',
         )}
       >
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--lagoon)] to-[var(--lagoon-deep)]">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-(--lagoon) to-(--lagoon-deep)">
           <Zap className="h-4 w-4 text-white" />
         </div>
         {!collapsed && (
@@ -100,7 +100,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
               <span className="relative shrink-0">
                 {item.icon}
                 {isNotifications && unreadCount > 0 && (
-                  <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-[var(--lagoon)] text-[10px] font-bold text-white">
+                  <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-(--lagoon) text-[10px] font-bold text-white">
                     {unreadCount > 9 ? '9+' : unreadCount}
                   </span>
                 )}
@@ -186,8 +186,8 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         className={cn(
           'absolute -right-3 top-20 z-10',
           'flex h-6 w-6 items-center justify-center rounded-full',
-          'border border-[var(--line)] bg-[var(--surface-strong)] shadow-sm',
-          'text-[var(--sea-ink-soft)] transition-colors hover:text-[var(--sea-ink)]',
+          'border border-(--line) bg-(--surface-strong) shadow-sm',
+          'text-(--sea-ink-soft) transition-colors hover:text-(--sea-ink)',
         )}
       >
         {collapsed ? (

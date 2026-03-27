@@ -102,7 +102,7 @@ function SettingsPage() {
                     <Button variant="outline" size="sm" leftIcon={<Camera className="h-4 w-4" />}>
                       Cambiar foto
                     </Button>
-                    <p className="mt-1.5 text-xs text-[var(--sea-ink-soft)]">JPG, PNG o WebP. Máx 2MB.</p>
+                    <p className="mt-1.5 text-xs text-(--sea-ink-soft)">JPG, PNG o WebP. Máx 2MB.</p>
                   </div>
                 </div>
 
@@ -174,16 +174,16 @@ function SettingsPage() {
                 ].map(({ key, label, desc }) => (
                   <div
                     key={key}
-                    className="flex items-start justify-between gap-4 rounded-xl border border-[var(--line)] p-4"
+                    className="flex items-start justify-between gap-4 rounded-xl border border-(--line) p-4"
                   >
                     <div>
-                      <p className="text-sm font-medium text-[var(--sea-ink)]">{label}</p>
-                      <p className="text-xs text-[var(--sea-ink-soft)] mt-0.5">{desc}</p>
+                      <p className="text-sm font-medium text-(--sea-ink)">{label}</p>
+                      <p className="text-xs text-(--sea-ink-soft) mt-0.5">{desc}</p>
                     </div>
                     <button
                       onClick={() => setNotifPrefs((p) => ({ ...p, [key]: !p[key] }))}
                       className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full transition-colors duration-200 ${
-                        notifPrefs[key] ? 'bg-[var(--lagoon-deep)]' : 'bg-[var(--line)]'
+                        notifPrefs[key] ? 'bg-(--lagoon-deep)' : 'bg-(--line)'
                       }`}
                     >
                       <span

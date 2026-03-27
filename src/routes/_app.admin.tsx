@@ -15,7 +15,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '#/components/ui/card'
 import { Badge } from '#/components/ui/badge'
 import { Avatar } from '#/components/ui/avatar'
 import { Input } from '#/components/ui/input'
-import { Button } from '#/components/ui/button'
 import { PageSpinner } from '#/components/ui/spinner'
 import {
   DropdownMenu,
@@ -50,7 +49,7 @@ export const Route = createFileRoute('/_app/admin')({
 })
 
 const ACTIVITY_DOT_COLOR: Record<string, string> = {
-  feedback_received: 'bg-[var(--lagoon)]',
+  feedback_received: 'bg-(--lagoon)',
   mention: 'bg-purple-500',
   objective_assigned: 'bg-blue-500',
   objective_status_changed: 'bg-blue-500',
@@ -74,21 +73,21 @@ function UserRow({
   const isSelf = user._id === currentUserId
 
   return (
-    <tr className="border-b border-[var(--line)] transition-colors hover:bg-[var(--surface)]/40">
+    <tr className="border-b border-(--line) transition-colors hover:bg-(--surface)/40">
       <td className="py-3 pl-4 pr-3">
         <div className="flex items-center gap-3">
           <Avatar name={user.name} size="sm" />
           <div>
-            <p className="text-sm font-medium text-[var(--sea-ink)]">
+            <p className="text-sm font-medium text-(--sea-ink)">
               {user.name}
-              {isSelf && <span className="ml-1.5 text-xs text-[var(--sea-ink-soft)]">(tú)</span>}
+              {isSelf && <span className="ml-1.5 text-xs text-(--sea-ink-soft)">(tú)</span>}
             </p>
-            <p className="text-xs text-[var(--sea-ink-soft)]">{user.email}</p>
+            <p className="text-xs text-(--sea-ink-soft)">{user.email}</p>
           </div>
         </div>
       </td>
       <td className="px-3 py-3">
-        <span className="text-sm text-[var(--sea-ink-soft)]">{user.department ?? '—'}</span>
+        <span className="text-sm text-(--sea-ink-soft)">{user.department ?? '—'}</span>
       </td>
       <td className="px-3 py-3">
         <Badge variant={user.role}>{user.role}</Badge>
@@ -106,14 +105,14 @@ function UserRow({
           {user.emailVerified ? 'Verificado' : 'Pendiente'}
         </span>
       </td>
-      <td className="px-3 py-3 text-xs text-[var(--sea-ink-soft)]">
+      <td className="px-3 py-3 text-xs text-(--sea-ink-soft)">
         {formatRelativeTime(user.createdAt)}
       </td>
       <td className="py-3 pl-3 pr-4 text-right">
         {!isSelf && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="rounded-lg p-1.5 text-[var(--sea-ink-soft)] hover:bg-[var(--surface)] hover:text-[var(--sea-ink)]">
+              <button className="rounded-lg p-1.5 text-(--sea-ink-soft) hover:bg-(--surface) hover:text-(--sea-ink)">
                 <MoreVertical className="h-4 w-4" />
               </button>
             </DropdownMenuTrigger>
@@ -216,8 +215,8 @@ function AdminPage() {
                   {stat.icon}
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-[var(--sea-ink)]">{stat.value}</p>
-                  <p className="text-xs text-[var(--sea-ink-soft)]">{stat.label}</p>
+                  <p className="text-2xl font-bold text-(--sea-ink)">{stat.value}</p>
+                  <p className="text-xs text-(--sea-ink-soft)">{stat.label}</p>
                 </div>
               </CardContent>
             </Card>
@@ -241,7 +240,7 @@ function AdminPage() {
           <CardContent className="p-0 overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-[var(--line)]">
+                <tr className="border-b border-(--line)">
                   {[
                     { key: 'name', label: 'Usuario' },
                     { key: null, label: 'Departamento' },
@@ -254,9 +253,9 @@ function AdminPage() {
                       key={i}
                       onClick={() => key && handleSort(key as SortField)}
                       className={cn(
-                        'py-3 text-left text-xs font-semibold uppercase tracking-wider text-[var(--sea-ink-soft)]',
+                        'py-3 text-left text-xs font-semibold uppercase tracking-wider text-(--sea-ink-soft)',
                         i === 0 ? 'pl-4 pr-3' : 'px-3',
-                        key && 'cursor-pointer select-none hover:text-[var(--sea-ink)]',
+                        key && 'cursor-pointer select-none hover:text-(--sea-ink)',
                       )}
                     >
                       {label}
@@ -277,7 +276,7 @@ function AdminPage() {
               </tbody>
             </table>
             {filtered.length === 0 && (
-              <div className="py-12 text-center text-sm text-[var(--sea-ink-soft)]">
+              <div className="py-12 text-center text-sm text-(--sea-ink-soft)">
                 No se encontraron usuarios con ese filtro.
               </div>
             )}
@@ -288,35 +287,35 @@ function AdminPage() {
         <Card>
           <CardHeader className="p-5">
             <div className="flex items-center gap-2">
-              <Activity className="h-4 w-4 text-[var(--lagoon-deep)]" />
+              <Activity className="h-4 w-4 text-(--lagoon-deep)" />
               <CardTitle>Log de actividad</CardTitle>
               <Badge variant="default" className="ml-auto">Últimos 30 días</Badge>
             </div>
           </CardHeader>
           <CardContent className="pt-0">
             {!metrics?.recentActivity?.length ? (
-              <p className="py-6 text-center text-sm text-[var(--sea-ink-soft)]">
+              <p className="py-6 text-center text-sm text-(--sea-ink-soft)">
                 Sin actividad reciente.
               </p>
             ) : (
-              <ul className="divide-y divide-[var(--line)]">
+              <ul className="divide-y divide-(--line)">
                 {metrics.recentActivity.map((entry) => (
                   <li key={entry.id} className="flex items-center gap-4 py-3">
                     <span
                       className={cn(
                         'h-2 w-2 shrink-0 rounded-full',
-                        ACTIVITY_DOT_COLOR[entry.type] ?? 'bg-[var(--sea-ink-soft)]',
+                        ACTIVITY_DOT_COLOR[entry.type] ?? 'bg-(--sea-ink-soft)',
                       )}
                     />
                     <div className="flex flex-1 items-center gap-2 min-w-0">
                       {entry.user && (
                         <Avatar name={entry.user.name} src={entry.user.avatar} size="xs" />
                       )}
-                      <p className="flex-1 truncate text-sm text-[var(--sea-ink)]">
+                      <p className="flex-1 truncate text-sm text-(--sea-ink)">
                         {entry.message}
                       </p>
                     </div>
-                    <span className="shrink-0 text-xs text-[var(--sea-ink-soft)]">
+                    <span className="shrink-0 text-xs text-(--sea-ink-soft)">
                       {formatRelativeTime(entry.createdAt)}
                     </span>
                   </li>

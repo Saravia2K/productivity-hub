@@ -9,8 +9,8 @@ export function Card({ hoverable = false, className, children, ...props }: CardP
   return (
     <div
       className={cn(
-        'rounded-2xl border border-[var(--line)]',
-        'bg-gradient-to-b from-[var(--surface-strong)] to-[var(--surface)]',
+        'rounded-2xl border border-(--line)',
+        'bg-linear-to-b from-(--surface-strong) to-(--surface)',
         'shadow-[0_1px_0_var(--inset-glint)_inset,0_4px_16px_rgba(23,58,64,0.06)]',
         hoverable &&
           'transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_1px_0_var(--inset-glint)_inset,0_8px_24px_rgba(23,58,64,0.1)] cursor-pointer',
@@ -34,7 +34,7 @@ export function CardHeader({ className, children, ...props }: React.HTMLAttribut
 export function CardTitle({ className, children, ...props }: React.HTMLAttributes<HTMLHeadingElement>) {
   return (
     <h3
-      className={cn('text-base font-semibold text-[var(--sea-ink)] leading-tight', className)}
+      className={cn('text-base font-semibold text-(--sea-ink) leading-tight', className)}
       {...props}
     >
       {children}
@@ -44,7 +44,7 @@ export function CardTitle({ className, children, ...props }: React.HTMLAttribute
 
 export function CardDescription({ className, children, ...props }: React.HTMLAttributes<HTMLParagraphElement>) {
   return (
-    <p className={cn('text-sm text-[var(--sea-ink-soft)]', className)} {...props}>
+    <p className={cn('text-sm text-(--sea-ink-soft)', className)} {...props}>
       {children}
     </p>
   )
@@ -62,7 +62,7 @@ export function CardFooter({ className, children, ...props }: React.HTMLAttribut
   return (
     <div
       className={cn(
-        'flex items-center gap-2 border-t border-[var(--line)] px-5 py-3',
+        'flex items-center gap-2 border-t border-(--line) px-5 py-3',
         className,
       )}
       {...props}

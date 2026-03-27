@@ -13,7 +13,7 @@ export function Spinner({ size = 'md', className }: SpinnerProps) {
       role="status"
       className={cn(
         'inline-block animate-spin rounded-full',
-        'border-2 border-current border-t-transparent text-[var(--lagoon-deep)]',
+        'border-2 border-current border-t-transparent text-(--lagoon-deep)',
         sizeClasses[size],
         className,
       )}

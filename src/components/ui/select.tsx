@@ -32,31 +32,31 @@ export function Select({
   return (
     <div className="flex flex-col gap-1.5">
       {label && (
-        <span className="text-sm font-medium text-[var(--sea-ink)]">{label}</span>
+        <span className="text-sm font-medium text-(--sea-ink)">{label}</span>
       )}
       <SelectPrimitive.Root value={value} onValueChange={onValueChange} disabled={disabled}>
         <SelectPrimitive.Trigger
           className={cn(
             'flex h-9 w-full items-center justify-between rounded-lg border px-3 text-sm',
-            'bg-[var(--surface)] text-[var(--sea-ink)] border-[var(--line)]',
-            'focus:outline-none focus:border-[var(--lagoon-deep)] focus:ring-2 focus:ring-[var(--lagoon)]/20',
+            'bg-(--surface) text-(--sea-ink) border-(--line)',
+            'focus:outline-none focus:border-(--lagoon-deep) focus:ring-2 focus:ring-(--lagoon)/20',
             'disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-150',
-            'data-[placeholder]:text-[var(--sea-ink-soft)]',
+            'data-[placeholder]:text-(--sea-ink-soft)',
             error && 'border-red-400',
             className,
           )}
         >
           <SelectPrimitive.Value placeholder={placeholder} />
           <SelectPrimitive.Icon>
-            <ChevronDown className="h-4 w-4 text-[var(--sea-ink-soft)]" />
+            <ChevronDown className="h-4 w-4 text-(--sea-ink-soft)" />
           </SelectPrimitive.Icon>
         </SelectPrimitive.Trigger>
 
         <SelectPrimitive.Portal>
           <SelectPrimitive.Content
             className={cn(
-              'z-50 min-w-[8rem] overflow-hidden rounded-xl border border-[var(--line)]',
-              'bg-[var(--surface-strong)] shadow-xl',
+              'z-50 min-w-[8rem] overflow-hidden rounded-xl border border-(--line)',
+              'bg-(--surface-strong) shadow-xl',
               'data-[state=open]:animate-in data-[state=closed]:animate-out',
               'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
               'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
@@ -71,9 +71,9 @@ export function Select({
                   value={opt.value}
                   className={cn(
                     'relative flex cursor-pointer select-none items-center rounded-lg py-2 pl-8 pr-3 text-sm',
-                    'text-[var(--sea-ink)] outline-none',
-                    'focus:bg-[rgba(79,184,178,0.1)] focus:text-[var(--lagoon-deep)]',
-                    'data-[highlighted]:bg-[rgba(79,184,178,0.1)] data-[highlighted]:text-[var(--lagoon-deep)]',
+                    'text-(--sea-ink) outline-none',
+                    'focus:bg-[rgba(79,184,178,0.1)] focus:text-(--lagoon-deep)',
+                    'data-[highlighted]:bg-[rgba(79,184,178,0.1)] data-[highlighted]:text-(--lagoon-deep)',
                   )}
                 >
                   <SelectPrimitive.ItemIndicator className="absolute left-2">

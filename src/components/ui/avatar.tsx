@@ -36,7 +36,7 @@ export function Avatar({ src, name, size = 'md', className }: AvatarProps) {
       <AvatarPrimitive.Fallback
         className={cn(
           'flex h-full w-full items-center justify-center rounded-full font-semibold',
-          'bg-gradient-to-br from-[var(--lagoon)] to-[var(--lagoon-deep)] text-white',
+          'bg-gradient-to-br from-(--lagoon) to-(--lagoon-deep) text-white',
         )}
       >
         {getInitials(name)}

@@ -23,13 +23,11 @@ import {
   Calendar,
   MessageCircle,
   CheckSquare,
-  User,
   Clock,
 } from 'lucide-react'
 import { TopBar } from '#/components/layout/TopBar'
 import { Card, CardContent } from '#/components/ui/card'
 import { Button } from '#/components/ui/button'
-import { Badge } from '#/components/ui/badge'
 import { Avatar } from '#/components/ui/avatar'
 import { Input, Textarea } from '#/components/ui/input'
 import { Select } from '#/components/ui/select'
@@ -89,7 +87,7 @@ function ObjectiveCard({
         className={cn(
           'select-none',
           overlay && 'rotate-1 shadow-xl',
-          isDragging && 'ring-2 ring-[var(--lagoon-deep)]',
+          isDragging && 'ring-2 ring-(--lagoon-deep)',
         )}
       >
         <CardContent className="p-4 space-y-3">
@@ -97,17 +95,17 @@ function ObjectiveCard({
             <button
               {...attributes}
               {...listeners}
-              className="mt-0.5 shrink-0 cursor-grab text-[var(--sea-ink-soft)] opacity-40 hover:opacity-100 active:cursor-grabbing"
+              className="mt-0.5 shrink-0 cursor-grab text-(--sea-ink-soft) opacity-40 hover:opacity-100 active:cursor-grabbing"
             >
               <GripVertical className="h-4 w-4" />
             </button>
-            <p className="text-sm font-medium text-[var(--sea-ink)] leading-snug flex-1">
+            <p className="text-sm font-medium text-(--sea-ink) leading-snug flex-1">
               {objective.title}
             </p>
           </div>
 
           {objective.description && (
-            <p className="ml-6 text-xs text-[var(--sea-ink-soft)] line-clamp-2 leading-relaxed">
+            <p className="ml-6 text-xs text-(--sea-ink-soft) line-clamp-2 leading-relaxed">
               {objective.description}
             </p>
           )}
@@ -116,7 +114,7 @@ function ObjectiveCard({
             {/* Assignee */}
             <div className="flex items-center gap-1.5">
               <Avatar name={objective.assignee.name} size="xs" />
-              <span className="text-xs text-[var(--sea-ink-soft)]">
+              <span className="text-xs text-(--sea-ink-soft)">
                 {objective.assignee.name}
               </span>
             </div>
@@ -126,7 +124,7 @@ function ObjectiveCard({
               <span
                 className={cn(
                   'flex items-center gap-1 text-xs',
-                  isOverdue ? 'text-red-500' : 'text-[var(--sea-ink-soft)]',
+                  isOverdue ? 'text-red-500' : 'text-(--sea-ink-soft)',
                 )}
               >
                 {isOverdue ? (
@@ -140,7 +138,7 @@ function ObjectiveCard({
 
             {/* Sub-tasks progress */}
             {objective.subTasks.length > 0 && (
-              <span className="flex items-center gap-1 text-xs text-[var(--sea-ink-soft)]">
+              <span className="flex items-center gap-1 text-xs text-(--sea-ink-soft)">
                 <CheckSquare className="h-3 w-3" />
                 {completedSubTasks}/{objective.subTasks.length}
               </span>
@@ -148,7 +146,7 @@ function ObjectiveCard({
 
             {/* Comments */}
             {objective.comments.length > 0 && (
-              <span className="flex items-center gap-1 text-xs text-[var(--sea-ink-soft)]">
+              <span className="flex items-center gap-1 text-xs text-(--sea-ink-soft)">
                 <MessageCircle className="h-3 w-3" />
                 {objective.comments.length}
               </span>
@@ -158,9 +156,9 @@ function ObjectiveCard({
           {/* Sub-task progress bar */}
           {objective.subTasks.length > 0 && (
             <div className="ml-6">
-              <div className="h-1 w-full overflow-hidden rounded-full bg-[var(--line)]">
+              <div className="h-1 w-full overflow-hidden rounded-full bg-(--line)">
                 <div
-                  className="h-full rounded-full bg-[var(--lagoon-deep)] transition-all duration-300"
+                  className="h-full rounded-full bg-(--lagoon-deep) transition-all duration-300"
                   style={{
                     width: `${(completedSubTasks / objective.subTasks.length) * 100}%`,
                   }}
@@ -194,14 +192,14 @@ function KanbanColumn({
       <div className="flex items-center justify-between px-1">
         <div className="flex items-center gap-2">
           <span className="h-2.5 w-2.5 rounded-full" style={{ background: color }} />
-          <span className="text-sm font-semibold text-[var(--sea-ink)]">{label}</span>
-          <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--surface)] border border-[var(--line)] px-1.5 text-xs font-medium text-[var(--sea-ink-soft)]">
+          <span className="text-sm font-semibold text-(--sea-ink)">{label}</span>
+          <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-(--surface) border border-(--line) px-1.5 text-xs font-medium text-(--sea-ink-soft)">
             {objectives.length}
           </span>
         </div>
         <button
           onClick={onAdd}
-          className="rounded-lg p-1 text-[var(--sea-ink-soft)] transition-colors hover:bg-[var(--surface)] hover:text-[var(--sea-ink)]"
+          className="rounded-lg p-1 text-(--sea-ink-soft) transition-colors hover:bg-(--surface) hover:text-(--sea-ink)"
           title="Añadir objetivo"
         >
           <Plus className="h-4 w-4" />
@@ -216,7 +214,7 @@ function KanbanColumn({
         <div
           className={cn(
             'flex flex-col gap-2 rounded-2xl border-2 border-dashed p-2 min-h-[200px]',
-            'border-[var(--line)] transition-colors',
+            'border-(--line) transition-colors',
           )}
         >
           {objectives.map((obj) => (
@@ -224,7 +222,7 @@ function KanbanColumn({
           ))}
           {objectives.length === 0 && (
             <div className="flex flex-1 items-center justify-center py-8">
-              <p className="text-xs text-[var(--sea-ink-soft)]">Arrastra objetivos aquí</p>
+              <p className="text-xs text-(--sea-ink-soft)">Arrastra objetivos aquí</p>
             </div>
           )}
         </div>
@@ -426,10 +424,10 @@ function ObjectivesPage() {
             {COLUMNS.map((col) => {
               const count = objectives.filter((o) => o.status === col.id).length
               return (
-                <div key={col.id} className="flex items-center gap-1.5 text-xs text-[var(--sea-ink-soft)]">
+                <div key={col.id} className="flex items-center gap-1.5 text-xs text-(--sea-ink-soft)">
                   <span className="h-2 w-2 rounded-full" style={{ background: col.color }} />
                   <span>{col.label}:</span>
-                  <span className="font-semibold text-[var(--sea-ink)]">{count}</span>
+                  <span className="font-semibold text-(--sea-ink)">{count}</span>
                 </div>
               )
             })}

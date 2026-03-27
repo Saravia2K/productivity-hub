@@ -37,9 +37,9 @@ function AuthCallbackPage() {
   }, [navigate, setAuth])
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[var(--bg-base)]">
+    <div className="flex min-h-screen items-center justify-center bg-(--bg-base)">
       <div className="space-y-4 text-center">
-        <div className="flex h-12 w-12 mx-auto items-center justify-center rounded-xl bg-gradient-to-br from-[var(--lagoon)] to-[var(--lagoon-deep)]">
+        <div className="flex h-12 w-12 mx-auto items-center justify-center rounded-xl bg-linear-to-br from-(--lagoon) to-(--lagoon-deep)">
           <Zap className="h-6 w-6 text-white" />
         </div>
         {error ? (
@@ -47,13 +47,13 @@ function AuthCallbackPage() {
             <p className="text-sm font-medium text-red-600">{error}</p>
             <a
               href="/login"
-              className="text-sm text-[var(--lagoon-deep)] underline hover:opacity-80"
+              className="text-sm text-(--lagoon-deep) underline hover:opacity-80"
             >
               Volver al inicio de sesión
             </a>
           </div>
         ) : (
-          <p className="text-sm text-[var(--sea-ink-soft)]">
+          <p className="text-sm text-(--sea-ink-soft)">
             Completando inicio de sesión…
           </p>
         )}

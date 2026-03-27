@@ -14,15 +14,15 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary:
-    'bg-[var(--lagoon-deep)] text-white hover:bg-[var(--lagoon)] border border-transparent shadow-sm',
+    'bg-(--lagoon-deep) text-white hover:bg-(--lagoon) border border-transparent shadow-sm',
   secondary:
-    'bg-[var(--surface)] text-[var(--sea-ink)] hover:bg-[var(--surface-strong)] border border-[var(--line)]',
+    'bg-(--surface) text-(--sea-ink) hover:bg-(--surface-strong) border border-(--line)',
   ghost:
-    'bg-transparent text-[var(--sea-ink-soft)] hover:bg-[rgba(79,184,178,0.08)] hover:text-[var(--sea-ink)] border border-transparent',
+    'bg-transparent text-(--sea-ink-soft) hover:bg-[rgba(79,184,178,0.08)] hover:text-(--sea-ink) border border-transparent',
   danger:
     'bg-red-500 text-white hover:bg-red-600 border border-transparent shadow-sm',
   outline:
-    'bg-transparent text-[var(--lagoon-deep)] border border-[var(--lagoon-deep)] hover:bg-[rgba(79,184,178,0.08)]',
+    'bg-transparent text-(--lagoon-deep) border border-(--lagoon-deep) hover:bg-[rgba(79,184,178,0.08)]',
 }
 
 const sizeClasses: Record<ButtonSize, string> = {
@@ -54,7 +54,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         className={cn(
           'inline-flex items-center justify-center rounded-lg font-medium',
           'transition-all duration-150 cursor-pointer',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--lagoon)] focus-visible:ring-offset-2',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--lagoon) focus-visible:ring-offset-2',
           'disabled:opacity-50 disabled:cursor-not-allowed',
           variantClasses[variant],
           sizeClasses[size],

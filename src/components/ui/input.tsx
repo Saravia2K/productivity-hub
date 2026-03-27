@@ -17,14 +17,14 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {label && (
           <label
             htmlFor={inputId}
-            className="text-sm font-medium text-[var(--sea-ink)]"
+            className="text-sm font-medium text-(--sea-ink)"
           >
             {label}
           </label>
         )}
         <div className="relative">
           {leftIcon && (
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--sea-ink-soft)]">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-(--sea-ink-soft)">
               {leftIcon}
             </span>
           )}
@@ -32,9 +32,9 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             ref={ref}
             id={inputId}
             className={cn(
-              'w-full rounded-lg border bg-[var(--surface)] px-3 py-2 text-sm text-[var(--sea-ink)]',
-              'placeholder:text-[var(--sea-ink-soft)] outline-none',
-              'border-[var(--line)] focus:border-[var(--lagoon-deep)] focus:ring-2 focus:ring-[var(--lagoon)]/20',
+              'w-full rounded-lg border bg-(--surface) px-3 py-2 text-sm text-(--sea-ink)',
+              'placeholder:text-(--sea-ink-soft) outline-none',
+              'border-(--line) focus:border-(--lagoon-deep) focus:ring-2 focus:ring-(--lagoon)/20',
               'transition-all duration-150',
               'disabled:cursor-not-allowed disabled:opacity-50',
               leftIcon && 'pl-9',
@@ -45,7 +45,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             {...props}
           />
           {rightIcon && (
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--sea-ink-soft)]">
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-(--sea-ink-soft)">
               {rightIcon}
             </span>
           )}
@@ -72,7 +72,7 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
         {label && (
           <label
             htmlFor={inputId}
-            className="text-sm font-medium text-[var(--sea-ink)]"
+            className="text-sm font-medium text-(--sea-ink)"
           >
             {label}
           </label>
@@ -81,9 +81,9 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
           ref={ref}
           id={inputId}
           className={cn(
-            'w-full rounded-lg border bg-[var(--surface)] px-3 py-2 text-sm text-[var(--sea-ink)]',
-            'placeholder:text-[var(--sea-ink-soft)] outline-none resize-none',
-            'border-[var(--line)] focus:border-[var(--lagoon-deep)] focus:ring-2 focus:ring-[var(--lagoon)]/20',
+            'w-full rounded-lg border bg-(--surface) px-3 py-2 text-sm text-(--sea-ink)',
+            'placeholder:text-(--sea-ink-soft) outline-none resize-none',
+            'border-(--line) focus:border-(--lagoon-deep) focus:ring-2 focus:ring-(--lagoon)/20',
             'transition-all duration-150',
             'disabled:cursor-not-allowed disabled:opacity-50',
             error && 'border-red-400 focus:border-red-500 focus:ring-red-400/20',

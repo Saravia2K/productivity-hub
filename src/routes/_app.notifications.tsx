@@ -107,8 +107,8 @@ function NotificationItem({
       className={cn(
         'group flex items-start gap-4 rounded-2xl border p-4 transition-all',
         notification.read
-          ? 'border-[var(--line)] bg-transparent'
-          : 'border-[var(--lagoon-deep)]/20 bg-[rgba(79,184,178,0.04)]',
+          ? 'border-(--line) bg-transparent'
+          : 'border-(--lagoon-deep)/20 bg-[rgba(79,184,178,0.04)]',
       )}
     >
       {/* Icon */}
@@ -125,20 +125,20 @@ function NotificationItem({
           <p
             className={cn(
               'text-sm leading-snug',
-              notification.read ? 'text-[var(--sea-ink-soft)]' : 'font-medium text-[var(--sea-ink)]',
+              notification.read ? 'text-(--sea-ink-soft)' : 'font-medium text-(--sea-ink)',
             )}
           >
             {notification.message}
           </p>
           {!notification.read && (
-            <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-[var(--lagoon-deep)]" />
+            <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-(--lagoon-deep)" />
           )}
         </div>
         <div className="flex items-center gap-3">
           <Badge variant="info" className="text-[10px]">
             {TYPE_LABEL[notification.type]}
           </Badge>
-          <span className="text-xs text-[var(--sea-ink-soft)]">
+          <span className="text-xs text-(--sea-ink-soft)">
             {formatRelativeTime(notification.createdAt)}
           </span>
         </div>
@@ -149,7 +149,7 @@ function NotificationItem({
         {!notification.read && (
           <button
             onClick={() => onMarkRead(notification._id)}
-            className="rounded-lg p-1.5 text-[var(--sea-ink-soft)] hover:bg-[var(--surface)] hover:text-[var(--lagoon-deep)]"
+            className="rounded-lg p-1.5 text-(--sea-ink-soft) hover:bg-(--surface) hover:text-(--lagoon-deep)"
             title="Marcar como leído"
           >
             <CheckCheck className="h-4 w-4" />
@@ -157,7 +157,7 @@ function NotificationItem({
         )}
         <button
           onClick={() => onDelete(notification._id)}
-          className="rounded-lg p-1.5 text-[var(--sea-ink-soft)] hover:bg-red-50 hover:text-red-500"
+          className="rounded-lg p-1.5 text-(--sea-ink-soft) hover:bg-red-50 hover:text-red-500"
           title="Eliminar"
         >
           <Trash2 className="h-4 w-4" />
@@ -220,8 +220,8 @@ function NotificationsPage() {
         {/* Header actions */}
         <div className="flex items-center justify-between">
           <div className="flex gap-3 text-sm">
-            <span className="text-[var(--sea-ink-soft)]">Total: <strong className="text-[var(--sea-ink)]">{notifications.length}</strong></span>
-            <span className="text-[var(--sea-ink-soft)]">Sin leer: <strong className="text-[var(--lagoon-deep)]">{unreadCount}</strong></span>
+            <span className="text-(--sea-ink-soft)">Total: <strong className="text-(--sea-ink)">{notifications.length}</strong></span>
+            <span className="text-(--sea-ink-soft)">Sin leer: <strong className="text-(--lagoon-deep)">{unreadCount}</strong></span>
           </div>
           {unreadCount > 0 && (
             <Button
@@ -246,7 +246,7 @@ function NotificationsPage() {
             {/* Unread */}
             {unread.length > 0 && (
               <div className="space-y-2">
-                <h2 className="text-xs font-bold uppercase tracking-wider text-[var(--sea-ink-soft)]">
+                <h2 className="text-xs font-bold uppercase tracking-wider text-(--sea-ink-soft)">
                   Sin leer ({unread.length})
                 </h2>
                 <div className="space-y-2">
@@ -265,7 +265,7 @@ function NotificationsPage() {
             {/* Read */}
             {read.length > 0 && (
               <div className="space-y-2">
-                <h2 className="text-xs font-bold uppercase tracking-wider text-[var(--sea-ink-soft)]">
+                <h2 className="text-xs font-bold uppercase tracking-wider text-(--sea-ink-soft)">
                   Leídas ({read.length})
                 </h2>
                 <div className="space-y-2">
@@ -287,11 +287,11 @@ function NotificationsPage() {
         <Card>
           <CardContent className="flex items-center gap-4 py-4">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[rgba(79,184,178,0.1)]">
-              <Bell className="h-5 w-5 text-[var(--lagoon-deep)]" />
+              <Bell className="h-5 w-5 text-(--lagoon-deep)" />
             </div>
             <div className="flex-1">
-              <p className="text-sm font-medium text-[var(--sea-ink)]">Preferencias de notificaciones</p>
-              <p className="text-xs text-[var(--sea-ink-soft)]">
+              <p className="text-sm font-medium text-(--sea-ink)">Preferencias de notificaciones</p>
+              <p className="text-xs text-(--sea-ink-soft)">
                 Elige qué notificaciones recibir por email o solo in-app.
               </p>
             </div>

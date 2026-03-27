@@ -66,8 +66,8 @@ function FeedbackCard({ feedback, showFrom }: { feedback: Feedback; showFrom: bo
       <CardContent className="pt-5">
         <div className="flex items-start gap-3">
           {feedback.isAnonymous && showFrom ? (
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--surface)] border border-[var(--line)]">
-              <UserCheck className="h-4 w-4 text-[var(--sea-ink-soft)]" />
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-(--surface) border border-(--line)">
+              <UserCheck className="h-4 w-4 text-(--sea-ink-soft)" />
             </div>
           ) : (
             <Avatar name={displayName} src={(author as { avatar?: string }).avatar} size="sm" />
@@ -76,8 +76,8 @@ function FeedbackCard({ feedback, showFrom }: { feedback: Feedback; showFrom: bo
           <div className="min-w-0 flex-1 space-y-3">
             <div className="flex items-start justify-between gap-2 flex-wrap">
               <div>
-                <span className="text-sm font-semibold text-[var(--sea-ink)]">{displayName}</span>
-                <span className="ml-2 text-xs text-[var(--sea-ink-soft)]">
+                <span className="text-sm font-semibold text-(--sea-ink)">{displayName}</span>
+                <span className="ml-2 text-xs text-(--sea-ink-soft)">
                   {formatRelativeTime(feedback.createdAt)}
                 </span>
               </div>
@@ -103,14 +103,14 @@ function FeedbackCard({ feedback, showFrom }: { feedback: Feedback; showFrom: bo
               </div>
             </div>
 
-            <p className="text-sm leading-relaxed text-[var(--sea-ink)]">{feedback.content}</p>
+            <p className="text-sm leading-relaxed text-(--sea-ink)">{feedback.content}</p>
 
             {feedback.tags.length > 0 && (
               <div className="flex flex-wrap gap-1.5">
                 {feedback.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="inline-flex items-center gap-1 rounded-full bg-[rgba(79,184,178,0.08)] px-2 py-0.5 text-xs text-[var(--lagoon-deep)]"
+                    className="inline-flex items-center gap-1 rounded-full bg-[rgba(79,184,178,0.08)] px-2 py-0.5 text-xs text-(--lagoon-deep)"
                   >
                     <Tag className="h-2.5 w-2.5" />
                     {tag}
@@ -199,7 +199,7 @@ function SendFeedbackDialog({ open, onClose }: { open: boolean; onClose: () => v
 
             {/* Type toggle */}
             <div className="space-y-1.5">
-              <span className="text-sm font-medium text-[var(--sea-ink)]">Tipo</span>
+              <span className="text-sm font-medium text-(--sea-ink)">Tipo</span>
               <div className="grid grid-cols-2 gap-2">
                 {(['positive', 'constructive'] as FeedbackType[]).map((type) => (
                   <button
@@ -211,7 +211,7 @@ function SendFeedbackDialog({ open, onClose }: { open: boolean; onClose: () => v
                         ? type === 'positive'
                           ? 'border-emerald-400 bg-emerald-500/10 text-emerald-700'
                           : 'border-amber-400 bg-amber-500/10 text-amber-700'
-                        : 'border-[var(--line)] bg-[var(--surface)] text-[var(--sea-ink-soft)] hover:border-[var(--lagoon-deep)]'
+                        : 'border-(--line) bg-(--surface) text-(--sea-ink-soft) hover:border-(--lagoon-deep)'
                     }`}
                   >
                     {type === 'positive' ? <ThumbsUp className="h-4 w-4" /> : <Wrench className="h-4 w-4" />}
@@ -238,7 +238,7 @@ function SendFeedbackDialog({ open, onClose }: { open: boolean; onClose: () => v
 
             {/* Tags */}
             <div className="space-y-1.5">
-              <span className="text-sm font-medium text-[var(--sea-ink)]">Tags</span>
+              <span className="text-sm font-medium text-(--sea-ink)">Tags</span>
               <div className="flex gap-2">
                 <Input
                   placeholder="Añadir tag…"
@@ -256,7 +256,7 @@ function SendFeedbackDialog({ open, onClose }: { open: boolean; onClose: () => v
                   {form.tags.map((tag) => (
                     <span
                       key={tag}
-                      className="inline-flex items-center gap-1 rounded-full bg-[rgba(79,184,178,0.08)] px-2.5 py-1 text-xs text-[var(--lagoon-deep)]"
+                      className="inline-flex items-center gap-1 rounded-full bg-[rgba(79,184,178,0.08)] px-2.5 py-1 text-xs text-(--lagoon-deep)"
                     >
                       {tag}
                       <button type="button" onClick={() => removeTag(tag)}>
@@ -276,13 +276,13 @@ function SendFeedbackDialog({ open, onClose }: { open: boolean; onClose: () => v
               ].map(({ key, label, icon }) => (
                 <label
                   key={key}
-                  className="flex cursor-pointer items-center gap-2 text-sm text-[var(--sea-ink-soft)] select-none"
+                  className="flex cursor-pointer items-center gap-2 text-sm text-(--sea-ink-soft) select-none"
                 >
                   <input
                     type="checkbox"
                     checked={form[key]}
                     onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.checked }))}
-                    className="h-4 w-4 rounded border-[var(--line)] accent-[var(--lagoon-deep)]"
+                    className="h-4 w-4 rounded border-(--line) accent-(--lagoon-deep)"
                   />
                   {icon}
                   {label}
@@ -342,8 +342,8 @@ function FeedbackPage() {
         {/* Header actions */}
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-2">
-            <Filter className="h-4 w-4 text-[var(--sea-ink-soft)]" />
-            <span className="text-sm text-[var(--sea-ink-soft)]">Filtrar por tipo:</span>
+            <Filter className="h-4 w-4 text-(--sea-ink-soft)" />
+            <span className="text-sm text-(--sea-ink-soft)">Filtrar por tipo:</span>
             <div className="flex gap-1">
               {[
                 { value: 'all', label: 'Todos' },
@@ -355,8 +355,8 @@ function FeedbackPage() {
                   onClick={() => setTypeFilter(f.value)}
                   className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${
                     typeFilter === f.value
-                      ? 'bg-[var(--lagoon-deep)] text-white'
-                      : 'border border-[var(--line)] bg-[var(--surface)] text-[var(--sea-ink-soft)] hover:border-[var(--lagoon-deep)]'
+                      ? 'bg-(--lagoon-deep) text-white'
+                      : 'border border-(--line) bg-(--surface) text-(--sea-ink-soft) hover:border-(--lagoon-deep)'
                   }`}
                 >
                   {f.label}
@@ -390,8 +390,8 @@ function FeedbackPage() {
                   <MessageSquare className="h-4 w-4" />
                 </div>
                 <div>
-                  <p className="text-xl font-bold text-[var(--sea-ink)]">{stat.value}</p>
-                  <p className="text-xs text-[var(--sea-ink-soft)]">{stat.label}</p>
+                  <p className="text-xl font-bold text-(--sea-ink)">{stat.value}</p>
+                  <p className="text-xs text-(--sea-ink-soft)">{stat.label}</p>
                 </div>
               </CardContent>
             </Card>
@@ -449,7 +449,7 @@ function FeedbackPage() {
 
         {/* Footer note */}
         {user?.role === 'admin' || user?.role === 'manager' ? (
-          <p className="text-xs text-[var(--sea-ink-soft)]">
+          <p className="text-xs text-(--sea-ink-soft)">
             Como {user.role}, puedes ver la identidad de los autores de feedback anónimo.
           </p>
         ) : null}
