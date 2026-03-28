@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useEffect } from 'react'
 import {
   Bell,
   MessageSquarePlus,
@@ -179,12 +180,12 @@ function NotificationsPage() {
       data: MOCK_NOTIFICATIONS,
       pagination: { total: MOCK_NOTIFICATIONS.length, page: 1, limit: 50, hasMore: false },
     },
-    select: (res) => {
-      // Sync store with fetched data
-      setNotifications(res.data)
-      return res.data
-    },
+    select: (res) => res.data,
   })
+
+  useEffect(() => {
+    if (data) setNotifications(data)
+  }, [data, setNotifications])
 
   const { mutate: markRead } = useMutation({
     mutationFn: notificationService.markAsRead,
