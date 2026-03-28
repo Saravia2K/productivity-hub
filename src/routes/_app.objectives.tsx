@@ -5,6 +5,7 @@ import {
   DndContext,
   DragOverlay,
   PointerSensor,
+  useDroppable,
   useSensor,
   useSensors,
   closestCorners,
@@ -186,6 +187,8 @@ function KanbanColumn({
   objectives: Objective[]
   onAdd: () => void
 }) {
+  const { setNodeRef, isOver } = useDroppable({ id: status })
+
   return (
     <div className="flex flex-col gap-3 min-w-[280px] flex-1">
       {/* Column header */}
@@ -212,9 +215,11 @@ function KanbanColumn({
         strategy={verticalListSortingStrategy}
       >
         <div
+          ref={setNodeRef}
           className={cn(
             'flex flex-col gap-2 rounded-2xl border-2 border-dashed p-2 min-h-[200px]',
-            'border-(--line) transition-colors',
+            isOver ? 'border-(--lagoon-deep) bg-[var(--lagoon-tint-4)]' : 'border-(--line)',
+            'transition-colors',
           )}
         >
           {objectives.map((obj) => (
