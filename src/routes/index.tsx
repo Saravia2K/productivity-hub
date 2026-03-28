@@ -1,11 +1,10 @@
-import { createFileRoute, redirect } from '@tanstack/react-router'
+import { createFileRoute, Navigate } from '@tanstack/react-router'
+
+function IndexRedirect() {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null
+  return <Navigate to={token ? '/dashboard' : '/login'} replace />
+}
 
 export const Route = createFileRoute('/')({
-  beforeLoad: () => {
-    if (typeof window === 'undefined') return
-
-    const token = localStorage.getItem('accessToken')
-    throw redirect({ to: token ? '/dashboard' : '/login' })
-  },
-  component: () => null,
+  component: IndexRedirect,
 })

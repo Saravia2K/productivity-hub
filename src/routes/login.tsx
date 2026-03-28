@@ -1,4 +1,4 @@
-import { createFileRoute, Link, redirect } from '@tanstack/react-router'
+import { createFileRoute, Link, Navigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import { Mail, Lock, Zap, Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '#/hooks/useAuth'
@@ -7,14 +7,14 @@ import { Button } from '#/components/ui/button'
 import { Input } from '#/components/ui/input'
 
 export const Route = createFileRoute('/login')({
-  beforeLoad: () => {
-    if (typeof window === 'undefined') return
-    if (localStorage.getItem('accessToken')) {
-      throw redirect({ to: '/dashboard' })
-    }
-  },
-  component: LoginPage,
+  component: LoginGuard,
 })
+
+function LoginGuard() {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null
+  if (token) return <Navigate to="/dashboard" replace />
+  return <LoginPage />
+}
 
 function LoginPage() {
   const { login } = useAuth()

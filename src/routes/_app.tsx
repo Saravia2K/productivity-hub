@@ -1,20 +1,17 @@
-import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
+import { createFileRoute, Navigate, Outlet } from '@tanstack/react-router'
 import { useState } from 'react'
 import { Sidebar } from '#/components/layout/Sidebar'
 import { useSocket } from '#/hooks/useSocket'
 
 export const Route = createFileRoute('/_app')({
-  beforeLoad: () => {
-    // Server-safe auth guard — localStorage is only available in the browser
-    if (typeof window === 'undefined') return
-
-    const token = localStorage.getItem('accessToken')
-    if (!token) {
-      throw redirect({ to: '/login' })
-    }
-  },
-  component: AppLayout,
+  component: AppGuard,
 })
+
+function AppGuard() {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null
+  if (!token) return <Navigate to="/login" replace />
+  return <AppLayout />
+}
 
 function AppLayout() {
   const [collapsed, setCollapsed] = useState(false)
