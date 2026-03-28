@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
+import { useForm, Controller } from 'react-hook-form'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   DndContext,
@@ -237,6 +238,14 @@ function KanbanColumn({
 }
 
 // ─── Create objective dialog ──────────────────────────────────────────────────
+type CreateObjectiveForm = {
+  title: string
+  description: string
+  status: ObjectiveStatus
+  assignee: string
+  dueDate: string
+}
+
 function CreateObjectiveDialog({
   open,
   defaultStatus,
@@ -247,6 +256,7 @@ function CreateObjectiveDialog({
   onClose: () => void
 }) {
   const qc = useQueryClient()
+  const [serverError, setServerError] = useState('')
 
   const { data: usersData } = useQuery({
     queryKey: ['users-list'],
@@ -258,30 +268,35 @@ function CreateObjectiveDialog({
     label: u.name + (u.department ? ` · ${u.department}` : ''),
   }))
 
-  const [form, setForm] = useState<CreateObjectiveDto>({
-    title: '',
-    description: '',
-    status: defaultStatus,
-    assignee: '',
-    dueDate: '',
+  const {
+    register,
+    handleSubmit,
+    control,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<CreateObjectiveForm>({
+    defaultValues: { title: '', description: '', status: defaultStatus, assignee: '', dueDate: '' },
   })
-  const [error, setError] = useState('')
 
-  const { mutate, isPending } = useMutation({
+  useEffect(() => {
+    if (open) reset({ title: '', description: '', status: defaultStatus, assignee: '', dueDate: '' })
+  }, [open, defaultStatus, reset])
+
+  const { mutateAsync } = useMutation({
     mutationFn: objectiveService.create,
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['objectives'] })
       onClose()
     },
-    onError: () => setError('No se pudo crear el objetivo.'),
   })
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    if (!form.title.trim()) { setError('El título es obligatorio.'); return }
-    if (!form.assignee) { setError('Selecciona un responsable.'); return }
-    setError('')
-    mutate({ ...form, dueDate: form.dueDate || undefined })
+  async function onSubmit(data: CreateObjectiveForm) {
+    setServerError('')
+    try {
+      await mutateAsync({ ...data, dueDate: data.dueDate || undefined } as CreateObjectiveDto)
+    } catch {
+      setServerError('No se pudo crear el objetivo.')
+    }
   }
 
   return (
@@ -290,51 +305,62 @@ function CreateObjectiveDialog({
         <DialogHeader>
           <DialogTitle>Nuevo objetivo</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit(onSubmit)}>
           <DialogBody className="space-y-4">
             <Input
               label="Título"
               placeholder="¿Qué quieres lograr?"
-              value={form.title}
-              onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
-              required
+              error={errors.title?.message}
+              {...register('title', { required: 'El título es obligatorio.' })}
             />
             <Textarea
               label="Descripción (opcional)"
               placeholder="Contexto adicional…"
-              value={form.description}
-              onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
               rows={3}
+              {...register('description')}
             />
-            <Select
-              label="Responsable"
-              options={assigneeOptions}
-              value={form.assignee}
-              onValueChange={(v) => setForm((f) => ({ ...f, assignee: v }))}
-              placeholder="Asignar a…"
+            <Controller
+              control={control}
+              name="assignee"
+              rules={{ required: 'Selecciona un responsable.' }}
+              render={({ field }) => (
+                <Select
+                  label="Responsable"
+                  options={assigneeOptions}
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  placeholder="Asignar a…"
+                  error={errors.assignee?.message}
+                />
+              )}
             />
-            <Select
-              label="Estado inicial"
-              options={COLUMNS.map((c) => ({ value: c.id, label: c.label }))}
-              value={form.status}
-              onValueChange={(v) => setForm((f) => ({ ...f, status: v as ObjectiveStatus }))}
+            <Controller
+              control={control}
+              name="status"
+              render={({ field }) => (
+                <Select
+                  label="Estado inicial"
+                  options={COLUMNS.map((c) => ({ value: c.id, label: c.label }))}
+                  value={field.value}
+                  onValueChange={field.onChange}
+                />
+              )}
             />
             <Input
               label="Fecha límite (opcional)"
               type="date"
-              value={form.dueDate ?? ''}
-              onChange={(e) => setForm((f) => ({ ...f, dueDate: e.target.value }))}
               leftIcon={<Calendar className="h-4 w-4" />}
+              {...register('dueDate')}
             />
-            {error && (
+            {serverError && (
               <p className="rounded-lg border border-red-200 bg-red-50 px-4 py-2.5 text-sm text-red-600">
-                {error}
+                {serverError}
               </p>
             )}
           </DialogBody>
           <DialogFooter>
             <Button type="button" variant="ghost" onClick={onClose}>Cancelar</Button>
-            <Button type="submit" loading={isPending} leftIcon={<Plus className="h-4 w-4" />}>
+            <Button type="submit" loading={isSubmitting} leftIcon={<Plus className="h-4 w-4" />}>
               Crear objetivo
             </Button>
           </DialogFooter>

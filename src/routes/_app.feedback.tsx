@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
+import { useForm, Controller } from 'react-hook-form'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   Plus,
@@ -126,9 +127,21 @@ function FeedbackCard({ feedback, showFrom }: { feedback: Feedback; showFrom: bo
 }
 
 // ─── Send feedback dialog ─────────────────────────────────────────────────────
+type SendFeedbackForm = {
+  to: string
+  type: FeedbackType
+  category: FeedbackCategory
+  content: string
+  isAnonymous: boolean
+  isPublic: boolean
+}
+
 function SendFeedbackDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   const qc = useQueryClient()
   const { user: currentUser } = useAuthStore()
+  const [tagInput, setTagInput] = useState('')
+  const [tags, setTags] = useState<string[]>([])
+  const [serverError, setServerError] = useState('')
 
   const { data: usersData } = useQuery({
     queryKey: ['users-list'],
@@ -139,46 +152,43 @@ function SendFeedbackDialog({ open, onClose }: { open: boolean; onClose: () => v
     .filter((u) => u._id !== currentUser?._id)
     .map((u) => ({ value: u._id, label: u.name + (u.department ? ` · ${u.department}` : '') }))
 
-  const [form, setForm] = useState<CreateFeedbackDto>({
-    to: '',
-    type: 'positive',
-    category: 'communication',
-    content: '',
-    isAnonymous: false,
-    isPublic: true,
-    tags: [],
+  const {
+    register,
+    handleSubmit,
+    control,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<SendFeedbackForm>({
+    defaultValues: { to: '', type: 'positive', category: 'communication', content: '', isAnonymous: false, isPublic: true },
   })
-  const [tagInput, setTagInput] = useState('')
-  const [error, setError] = useState('')
 
-  const { mutate, isPending } = useMutation({
+  const { mutateAsync } = useMutation({
     mutationFn: feedbackService.create,
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['feedback-sent'] })
+      reset()
+      setTags([])
       onClose()
-      setForm({ to: '', type: 'positive', category: 'communication', content: '', isAnonymous: false, isPublic: true, tags: [] })
     },
-    onError: () => setError('No se pudo enviar el feedback. Inténtalo de nuevo.'),
   })
 
   function addTag() {
     const t = tagInput.trim().toLowerCase()
-    if (t && !form.tags.includes(t)) {
-      setForm((f) => ({ ...f, tags: [...f.tags, t] }))
-    }
+    if (t && !tags.includes(t)) setTags((prev) => [...prev, t])
     setTagInput('')
   }
 
   function removeTag(tag: string) {
-    setForm((f) => ({ ...f, tags: f.tags.filter((t) => t !== tag) }))
+    setTags((prev) => prev.filter((t) => t !== tag))
   }
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    if (!form.to) { setError('Selecciona a quién va dirigido el feedback.'); return }
-    if (form.content.length < 20) { setError('El feedback debe tener al menos 20 caracteres.'); return }
-    setError('')
-    mutate(form)
+  async function onSubmit(data: SendFeedbackForm) {
+    setServerError('')
+    try {
+      await mutateAsync({ ...data, tags })
+    } catch {
+      setServerError('No se pudo enviar el feedback. Inténtalo de nuevo.')
+    }
   }
 
   return (
@@ -187,53 +197,73 @@ function SendFeedbackDialog({ open, onClose }: { open: boolean; onClose: () => v
         <DialogHeader>
           <DialogTitle>Enviar Feedback</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit(onSubmit)}>
           <DialogBody className="space-y-4">
-            <Select
-              label="Para"
-              options={userOptions}
-              value={form.to}
-              onValueChange={(v) => setForm((f) => ({ ...f, to: v }))}
-              placeholder="Selecciona un compañero…"
+            <Controller
+              control={control}
+              name="to"
+              rules={{ required: 'Selecciona a quién va dirigido el feedback.' }}
+              render={({ field }) => (
+                <Select
+                  label="Para"
+                  options={userOptions}
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  placeholder="Selecciona un compañero…"
+                  error={errors.to?.message}
+                />
+              )}
             />
 
             {/* Type toggle */}
-            <div className="space-y-1.5">
-              <span className="text-sm font-medium text-(--sea-ink)">Tipo</span>
-              <div className="grid grid-cols-2 gap-2">
-                {(['positive', 'constructive'] as FeedbackType[]).map((type) => (
-                  <button
-                    key={type}
-                    type="button"
-                    onClick={() => setForm((f) => ({ ...f, type }))}
-                    className={`flex items-center justify-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium transition-all ${
-                      form.type === type
-                        ? type === 'positive'
-                          ? 'border-emerald-400 bg-emerald-500/10 text-emerald-700'
-                          : 'border-amber-400 bg-amber-500/10 text-amber-700'
-                        : 'border-(--line) bg-(--surface) text-(--sea-ink-soft) hover:border-(--lagoon-deep)'
-                    }`}
-                  >
-                    {type === 'positive' ? <ThumbsUp className="h-4 w-4" /> : <Wrench className="h-4 w-4" />}
-                    {type === 'positive' ? 'Positivo' : 'Constructivo'}
-                  </button>
-                ))}
-              </div>
-            </div>
+            <Controller
+              control={control}
+              name="type"
+              render={({ field }) => (
+                <div className="space-y-1.5">
+                  <span className="text-sm font-medium text-(--sea-ink)">Tipo</span>
+                  <div className="grid grid-cols-2 gap-2">
+                    {(['positive', 'constructive'] as FeedbackType[]).map((t) => (
+                      <button
+                        key={t}
+                        type="button"
+                        onClick={() => field.onChange(t)}
+                        className={`flex items-center justify-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium transition-all ${
+                          field.value === t
+                            ? t === 'positive'
+                              ? 'border-emerald-400 bg-emerald-500/10 text-emerald-700'
+                              : 'border-amber-400 bg-amber-500/10 text-amber-700'
+                            : 'border-(--line) bg-(--surface) text-(--sea-ink-soft) hover:border-(--lagoon-deep)'
+                        }`}
+                      >
+                        {t === 'positive' ? <ThumbsUp className="h-4 w-4" /> : <Wrench className="h-4 w-4" />}
+                        {t === 'positive' ? 'Positivo' : 'Constructivo'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            />
 
-            <Select
-              label="Categoría"
-              options={CATEGORY_OPTIONS}
-              value={form.category}
-              onValueChange={(v) => setForm((f) => ({ ...f, category: v as FeedbackCategory }))}
+            <Controller
+              control={control}
+              name="category"
+              render={({ field }) => (
+                <Select
+                  label="Categoría"
+                  options={CATEGORY_OPTIONS}
+                  value={field.value}
+                  onValueChange={field.onChange}
+                />
+              )}
             />
 
             <Textarea
               label="Feedback"
               placeholder="Sé específico y constructivo. Describe situaciones concretas y su impacto…"
-              value={form.content}
-              onChange={(e) => setForm((f) => ({ ...f, content: e.target.value }))}
               rows={4}
+              error={errors.content?.message}
+              {...register('content', { required: 'El feedback es obligatorio.', minLength: { value: 20, message: 'El feedback debe tener al menos 20 caracteres.' } })}
             />
 
             {/* Tags */}
@@ -251,9 +281,9 @@ function SendFeedbackDialog({ open, onClose }: { open: boolean; onClose: () => v
                   Añadir
                 </Button>
               </div>
-              {form.tags.length > 0 && (
+              {tags.length > 0 && (
                 <div className="flex flex-wrap gap-1.5 pt-1">
-                  {form.tags.map((tag) => (
+                  {tags.map((tag) => (
                     <span
                       key={tag}
                       className="inline-flex items-center gap-1 rounded-full bg-[var(--lagoon-tint-8)] px-2.5 py-1 text-xs text-(--lagoon-deep)"
@@ -280,9 +310,8 @@ function SendFeedbackDialog({ open, onClose }: { open: boolean; onClose: () => v
                 >
                   <input
                     type="checkbox"
-                    checked={form[key]}
-                    onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.checked }))}
                     className="h-4 w-4 rounded border-(--line) accent-(--lagoon-deep)"
+                    {...register(key)}
                   />
                   {icon}
                   {label}
@@ -290,16 +319,16 @@ function SendFeedbackDialog({ open, onClose }: { open: boolean; onClose: () => v
               ))}
             </div>
 
-            {error && (
+            {serverError && (
               <p className="rounded-lg border border-red-200 bg-red-50 px-4 py-2.5 text-sm text-red-600">
-                {error}
+                {serverError}
               </p>
             )}
           </DialogBody>
 
           <DialogFooter>
             <Button type="button" variant="ghost" onClick={onClose}>Cancelar</Button>
-            <Button type="submit" loading={isPending} leftIcon={<Send className="h-4 w-4" />}>
+            <Button type="submit" loading={isSubmitting} leftIcon={<Send className="h-4 w-4" />}>
               Enviar feedback
             </Button>
           </DialogFooter>

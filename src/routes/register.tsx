@@ -1,5 +1,6 @@
 import { createFileRoute, Link, Navigate } from '@tanstack/react-router'
 import { useState } from 'react'
+import { useForm } from 'react-hook-form'
 import { Mail, Lock, User, Building2, Zap, Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '#/hooks/useAuth'
 import { Button } from '#/components/ui/button'
@@ -16,39 +17,27 @@ function RegisterGuard() {
 }
 
 function RegisterPage() {
-  const { register } = useAuth()
-  const [form, setForm] = useState({
-    name: '',
-    email: '',
-    password: '',
-    department: '',
-  })
+  const { register: registerUser } = useAuth()
   const [showPassword, setShowPassword] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
+  const [serverError, setServerError] = useState('')
 
-  const set = (key: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) =>
-    setForm((prev) => ({ ...prev, [key]: e.target.value }))
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<{ name: string; email: string; password: string; department: string }>()
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    if (form.password.length < 8) {
-      setError('La contraseña debe tener al menos 8 caracteres.')
-      return
-    }
-    setError('')
-    setLoading(true)
+  async function onSubmit(data: { name: string; email: string; password: string; department: string }) {
+    setServerError('')
     try {
-      await register({
-        name: form.name,
-        email: form.email,
-        password: form.password,
-        department: form.department || undefined,
+      await registerUser({
+        name: data.name,
+        email: data.email,
+        password: data.password,
+        department: data.department || undefined,
       })
     } catch {
-      setError('No se pudo crear la cuenta. El email puede estar en uso.')
-    } finally {
-      setLoading(false)
+      setServerError('No se pudo crear la cuenta. El email puede estar en uso.')
     }
   }
 
@@ -117,35 +106,31 @@ function RegisterPage() {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <Input
               label="Nombre completo"
               type="text"
               placeholder="Ana García"
-              value={form.name}
-              onChange={set('name')}
               leftIcon={<User className="h-4 w-4" />}
-              required
               autoComplete="name"
+              error={errors.name?.message}
+              {...register('name', { required: 'El nombre es obligatorio.' })}
             />
 
             <Input
               label="Email corporativo"
               type="email"
               placeholder="ana@empresa.com"
-              value={form.email}
-              onChange={set('email')}
               leftIcon={<Mail className="h-4 w-4" />}
-              required
               autoComplete="email"
+              error={errors.email?.message}
+              {...register('email', { required: 'El email es obligatorio.' })}
             />
 
             <Input
               label="Contraseña"
               type={showPassword ? 'text' : 'password'}
               placeholder="Mínimo 8 caracteres"
-              value={form.password}
-              onChange={set('password')}
               leftIcon={<Lock className="h-4 w-4" />}
               rightIcon={
                 <button
@@ -160,27 +145,30 @@ function RegisterPage() {
                   )}
                 </button>
               }
-              required
               autoComplete="new-password"
+              error={errors.password?.message}
+              {...register('password', {
+                required: 'La contraseña es obligatoria.',
+                minLength: { value: 8, message: 'La contraseña debe tener al menos 8 caracteres.' },
+              })}
             />
 
             <Input
               label="Departamento (opcional)"
               type="text"
               placeholder="Ingeniería, Producto, Diseño…"
-              value={form.department}
-              onChange={set('department')}
               leftIcon={<Building2 className="h-4 w-4" />}
               autoComplete="organization"
+              {...register('department')}
             />
 
-            {error && (
+            {serverError && (
               <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
-                {error}
+                {serverError}
               </div>
             )}
 
-            <Button type="submit" loading={loading} className="w-full">
+            <Button type="submit" loading={isSubmitting} className="w-full">
               Crear cuenta
             </Button>
           </form>

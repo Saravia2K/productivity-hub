@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
+import { useForm } from 'react-hook-form'
 import { useMutation } from '@tanstack/react-query'
 import { User, Mail, Building2, FileText, Bell, Lock, Camera } from 'lucide-react'
 import { TopBar } from '#/components/layout/TopBar'
@@ -15,30 +16,29 @@ export const Route = createFileRoute('/_app/settings')({
   component: SettingsPage,
 })
 
+type ProfileForm = { name: string; bio: string; department: string }
+type PasswordForm = { current: string; next: string; confirm: string }
+
 function SettingsPage() {
   const { user, setUser } = useAuthStore()
-
-  const [profile, setProfile] = useState({
-    name: user?.name ?? '',
-    bio: user?.bio ?? '',
-    department: user?.department ?? '',
-  })
-  const [passwords, setPasswords] = useState({
-    current: '',
-    next: '',
-    confirm: '',
-  })
   const [notifPrefs, setNotifPrefs] = useState({
     email: user?.notificationPreferences.email ?? true,
     inApp: user?.notificationPreferences.inApp ?? true,
   })
-
   const [profileSuccess, setProfileSuccess] = useState(false)
-  const [passwordError, setPasswordError] = useState('')
   const [passwordSuccess, setPasswordSuccess] = useState(false)
 
-  const { mutate: saveProfile, isPending: savingProfile } = useMutation({
-    mutationFn: () => authService.updateProfile(profile),
+  // ── Profile form ──────────────────────────────────────────────────────────
+  const {
+    register: registerProfile,
+    handleSubmit: handleProfileSubmit,
+    formState: { errors: profileErrors, isSubmitting: savingProfile },
+  } = useForm<ProfileForm>({
+    defaultValues: { name: user?.name ?? '', bio: user?.bio ?? '', department: user?.department ?? '' },
+  })
+
+  const { mutateAsync: saveProfileAsync } = useMutation({
+    mutationFn: (data: ProfileForm) => authService.updateProfile(data),
     onSuccess: (updatedUser) => {
       setUser(updatedUser)
       setProfileSuccess(true)
@@ -46,29 +46,23 @@ function SettingsPage() {
     },
   })
 
-  const { mutate: changePassword, isPending: changingPassword } = useMutation({
-    mutationFn: () => authService.changePassword(passwords.current, passwords.next),
+  // ── Password form ─────────────────────────────────────────────────────────
+  const {
+    register: registerPassword,
+    handleSubmit: handlePasswordSubmit,
+    watch: watchPassword,
+    reset: resetPassword,
+    formState: { errors: passwordErrors, isSubmitting: changingPassword },
+  } = useForm<PasswordForm>()
+
+  const { mutateAsync: changePasswordAsync } = useMutation({
+    mutationFn: (data: PasswordForm) => authService.changePassword(data.current, data.next),
     onSuccess: () => {
-      setPasswords({ current: '', next: '', confirm: '' })
+      resetPassword()
       setPasswordSuccess(true)
       setTimeout(() => setPasswordSuccess(false), 3000)
     },
-    onError: () => setPasswordError('Contraseña actual incorrecta.'),
   })
-
-  function handlePasswordSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    setPasswordError('')
-    if (passwords.next !== passwords.confirm) {
-      setPasswordError('Las contraseñas nuevas no coinciden.')
-      return
-    }
-    if (passwords.next.length < 8) {
-      setPasswordError('La nueva contraseña debe tener al menos 8 caracteres.')
-      return
-    }
-    changePassword()
-  }
 
   return (
     <div>
@@ -94,61 +88,57 @@ function SettingsPage() {
               <CardHeader className="p-5">
                 <CardTitle>Información de perfil</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-5">
-                {/* Avatar */}
-                <div className="flex items-center gap-4">
-                  <Avatar name={user?.name ?? 'U'} src={user?.avatar} size="xl" />
-                  <div>
-                    <Button variant="outline" size="sm" leftIcon={<Camera className="h-4 w-4" />}>
-                      Cambiar foto
-                    </Button>
-                    <p className="mt-1.5 text-xs text-(--sea-ink-soft)">JPG, PNG o WebP. Máx 2MB.</p>
+              <CardContent>
+                <form onSubmit={handleProfileSubmit((data) => saveProfileAsync(data))} className="space-y-5">
+                  {/* Avatar */}
+                  <div className="flex items-center gap-4">
+                    <Avatar name={user?.name ?? 'U'} src={user?.avatar} size="xl" />
+                    <div>
+                      <Button variant="outline" size="sm" leftIcon={<Camera className="h-4 w-4" />}>
+                        Cambiar foto
+                      </Button>
+                      <p className="mt-1.5 text-xs text-(--sea-ink-soft)">JPG, PNG o WebP. Máx 2MB.</p>
+                    </div>
                   </div>
-                </div>
 
-                <Input
-                  label="Nombre completo"
-                  value={profile.name}
-                  onChange={(e) => setProfile((p) => ({ ...p, name: e.target.value }))}
-                  leftIcon={<User className="h-4 w-4" />}
-                />
+                  <Input
+                    label="Nombre completo"
+                    leftIcon={<User className="h-4 w-4" />}
+                    error={profileErrors.name?.message}
+                    {...registerProfile('name', { required: 'El nombre es obligatorio.' })}
+                  />
 
-                <Input
-                  label="Email"
-                  value={user?.email ?? ''}
-                  disabled
-                  leftIcon={<Mail className="h-4 w-4" />}
-                />
+                  <Input
+                    label="Email"
+                    value={user?.email ?? ''}
+                    disabled
+                    leftIcon={<Mail className="h-4 w-4" />}
+                  />
 
-                <Input
-                  label="Departamento"
-                  value={profile.department}
-                  onChange={(e) => setProfile((p) => ({ ...p, department: e.target.value }))}
-                  leftIcon={<Building2 className="h-4 w-4" />}
-                  placeholder="Ingeniería, Producto, Diseño…"
-                />
+                  <Input
+                    label="Departamento"
+                    leftIcon={<Building2 className="h-4 w-4" />}
+                    placeholder="Ingeniería, Producto, Diseño…"
+                    {...registerProfile('department')}
+                  />
 
-                <Textarea
-                  label="Bio"
-                  value={profile.bio}
-                  onChange={(e) => setProfile((p) => ({ ...p, bio: e.target.value }))}
-                  placeholder="Cuéntale a tu equipo sobre ti…"
-                  rows={3}
-                />
+                  <Textarea
+                    label="Bio"
+                    placeholder="Cuéntale a tu equipo sobre ti…"
+                    rows={3}
+                    {...registerProfile('bio')}
+                  />
 
-                {profileSuccess && (
-                  <p className="rounded-lg bg-emerald-50 border border-emerald-200 px-4 py-2.5 text-sm text-emerald-700">
-                    Perfil actualizado correctamente.
-                  </p>
-                )}
+                  {profileSuccess && (
+                    <p className="rounded-lg bg-emerald-50 border border-emerald-200 px-4 py-2.5 text-sm text-emerald-700">
+                      Perfil actualizado correctamente.
+                    </p>
+                  )}
 
-                <Button
-                  loading={savingProfile}
-                  onClick={() => saveProfile()}
-                  leftIcon={<FileText className="h-4 w-4" />}
-                >
-                  Guardar cambios
-                </Button>
+                  <Button type="submit" loading={savingProfile} leftIcon={<FileText className="h-4 w-4" />}>
+                    Guardar cambios
+                  </Button>
+                </form>
               </CardContent>
             </Card>
           </TabsContent>
@@ -209,37 +199,35 @@ function SettingsPage() {
                 <CardTitle>Cambiar contraseña</CardTitle>
               </CardHeader>
               <CardContent>
-                <form onSubmit={handlePasswordSubmit} className="space-y-4">
+                <form onSubmit={handlePasswordSubmit((data) => changePasswordAsync(data))} className="space-y-4">
                   <Input
                     label="Contraseña actual"
                     type="password"
-                    value={passwords.current}
-                    onChange={(e) => setPasswords((p) => ({ ...p, current: e.target.value }))}
                     leftIcon={<Lock className="h-4 w-4" />}
-                    required
+                    error={passwordErrors.current?.message}
+                    {...registerPassword('current', { required: 'Introduce tu contraseña actual.' })}
                   />
                   <Input
                     label="Nueva contraseña"
                     type="password"
-                    value={passwords.next}
-                    onChange={(e) => setPasswords((p) => ({ ...p, next: e.target.value }))}
                     leftIcon={<Lock className="h-4 w-4" />}
-                    required
+                    error={passwordErrors.next?.message}
+                    {...registerPassword('next', {
+                      required: 'Introduce la nueva contraseña.',
+                      minLength: { value: 8, message: 'La nueva contraseña debe tener al menos 8 caracteres.' },
+                    })}
                   />
                   <Input
                     label="Confirmar nueva contraseña"
                     type="password"
-                    value={passwords.confirm}
-                    onChange={(e) => setPasswords((p) => ({ ...p, confirm: e.target.value }))}
                     leftIcon={<Lock className="h-4 w-4" />}
-                    required
+                    error={passwordErrors.confirm?.message}
+                    {...registerPassword('confirm', {
+                      required: 'Confirma la nueva contraseña.',
+                      validate: (v) => v === watchPassword('next') || 'Las contraseñas nuevas no coinciden.',
+                    })}
                   />
 
-                  {passwordError && (
-                    <p className="rounded-lg border border-red-200 bg-red-50 px-4 py-2.5 text-sm text-red-600">
-                      {passwordError}
-                    </p>
-                  )}
                   {passwordSuccess && (
                     <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-sm text-emerald-700">
                       Contraseña actualizada correctamente.

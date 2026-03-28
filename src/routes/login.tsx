@@ -1,5 +1,6 @@
 import { createFileRoute, Link, Navigate } from '@tanstack/react-router'
 import { useState } from 'react'
+import { useForm } from 'react-hook-form'
 import { Mail, Lock, Zap, Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '#/hooks/useAuth'
 import { authService } from '#/services/auth.service'
@@ -18,22 +19,21 @@ function LoginGuard() {
 
 function LoginPage() {
   const { login } = useAuth()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
+  const [serverError, setServerError] = useState('')
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    setError('')
-    setLoading(true)
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<{ email: string; password: string }>()
+
+  async function onSubmit(data: { email: string; password: string }) {
+    setServerError('')
     try {
-      await login({ email, password })
+      await login({ email: data.email, password: data.password })
     } catch {
-      setError('Credenciales incorrectas. Verifica tu email y contraseña.')
-    } finally {
-      setLoading(false)
+      setServerError('Credenciales incorrectas. Verifica tu email y contraseña.')
     }
   }
 
@@ -105,24 +105,21 @@ function LoginPage() {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <Input
               label="Email"
               type="email"
               placeholder="tu@empresa.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
               leftIcon={<Mail className="h-4 w-4" />}
-              required
               autoComplete="email"
+              error={errors.email?.message}
+              {...register('email', { required: 'El email es obligatorio.' })}
             />
 
             <Input
               label="Contraseña"
               type={showPassword ? 'text' : 'password'}
               placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
               leftIcon={<Lock className="h-4 w-4" />}
               rightIcon={
                 <button
@@ -137,17 +134,18 @@ function LoginPage() {
                   )}
                 </button>
               }
-              required
               autoComplete="current-password"
+              error={errors.password?.message}
+              {...register('password', { required: 'La contraseña es obligatoria.' })}
             />
 
-            {error && (
+            {serverError && (
               <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
-                {error}
+                {serverError}
               </div>
             )}
 
-            <Button type="submit" loading={loading} className="w-full">
+            <Button type="submit" loading={isSubmitting} className="w-full">
               Iniciar sesión
             </Button>
           </form>
