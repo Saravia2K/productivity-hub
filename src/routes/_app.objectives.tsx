@@ -60,13 +60,152 @@ const COLUMNS: { id: ObjectiveStatus; label: string; color: string }[] = [
   { id: 'completed', label: 'Completado', color: '#10b981' },
 ]
 
+// ─── Edit objective dialog ────────────────────────────────────────────────────
+type EditObjectiveForm = {
+  title: string
+  description: string
+  status: ObjectiveStatus
+  assignee: string
+  dueDate: string
+}
+
+function EditObjectiveDialog({
+  objective,
+  onClose,
+}: {
+  objective: Objective | null
+  onClose: () => void
+}) {
+  const open = !!objective
+  const qc = useQueryClient()
+  const [serverError, setServerError] = useState('')
+
+  const { data: usersData } = useQuery({
+    queryKey: ['users-list'],
+    queryFn: () => userService.getAll({ limit: 100 }),
+    enabled: open,
+  })
+  const assigneeOptions = (usersData?.data ?? []).map((u) => ({
+    value: u._id,
+    label: u.name + (u.department ? ` · ${u.department}` : ''),
+  }))
+
+  const {
+    register,
+    handleSubmit,
+    control,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<EditObjectiveForm>()
+
+  useEffect(() => {
+    if (objective) {
+      reset({
+        title: objective.title,
+        description: objective.description ?? '',
+        status: objective.status,
+        assignee: objective.assignee._id,
+        dueDate: objective.dueDate ? objective.dueDate.slice(0, 10) : '',
+      })
+    }
+  }, [objective, reset])
+
+  const { mutateAsync } = useMutation({
+    mutationFn: (data: Partial<CreateObjectiveDto>) =>
+      objectiveService.update(objective!._id, data),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['objectives'] })
+      onClose()
+    },
+  })
+
+  async function onSubmit(data: EditObjectiveForm) {
+    setServerError('')
+    try {
+      await mutateAsync({ ...data, dueDate: data.dueDate || undefined })
+    } catch {
+      setServerError('No se pudo actualizar el objetivo.')
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Editar objetivo</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <DialogBody className="space-y-4">
+            <Input
+              label="Título"
+              placeholder="¿Qué quieres lograr?"
+              error={errors.title?.message}
+              {...register('title', { required: 'El título es obligatorio.' })}
+            />
+            <Textarea
+              label="Descripción (opcional)"
+              placeholder="Contexto adicional…"
+              rows={3}
+              {...register('description')}
+            />
+            <Controller
+              control={control}
+              name="assignee"
+              rules={{ required: 'Selecciona un responsable.' }}
+              render={({ field }) => (
+                <Select
+                  label="Responsable"
+                  options={assigneeOptions}
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  placeholder="Asignar a…"
+                  error={errors.assignee?.message}
+                />
+              )}
+            />
+            <Controller
+              control={control}
+              name="status"
+              render={({ field }) => (
+                <Select
+                  label="Estado"
+                  options={COLUMNS.map((c) => ({ value: c.id, label: c.label }))}
+                  value={field.value}
+                  onValueChange={field.onChange}
+                />
+              )}
+            />
+            <Input
+              label="Fecha límite (opcional)"
+              type="date"
+              leftIcon={<Calendar className="h-4 w-4" />}
+              {...register('dueDate')}
+            />
+            {serverError && (
+              <p className="rounded-lg border border-red-200 bg-red-50 px-4 py-2.5 text-sm text-red-600">
+                {serverError}
+              </p>
+            )}
+          </DialogBody>
+          <DialogFooter>
+            <Button type="button" variant="ghost" onClick={onClose}>Cancelar</Button>
+            <Button type="submit" loading={isSubmitting}>Guardar cambios</Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
 // ─── Sortable objective card ──────────────────────────────────────────────────
 function ObjectiveCard({
   objective,
   overlay = false,
+  onClick,
 }: {
   objective: Objective
   overlay?: boolean
+  onClick?: () => void
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: objective._id })
@@ -90,13 +229,16 @@ function ObjectiveCard({
           'select-none',
           overlay && 'rotate-1 shadow-xl',
           isDragging && 'ring-2 ring-(--lagoon-deep)',
+          !overlay && onClick && 'cursor-pointer hover:shadow-md transition-shadow',
         )}
+        onClick={!isDragging && !overlay ? onClick : undefined}
       >
         <CardContent className="p-4 space-y-3">
           <div className="flex items-start gap-2">
             <button
               {...attributes}
               {...listeners}
+              onClick={(e) => e.stopPropagation()}
               className="mt-0.5 shrink-0 cursor-grab text-(--sea-ink-soft) opacity-40 hover:opacity-100 active:cursor-grabbing"
             >
               <GripVertical className="h-4 w-4" />
@@ -181,12 +323,14 @@ function KanbanColumn({
   color,
   objectives,
   onAdd,
+  onEdit,
 }: {
   status: ObjectiveStatus
   label: string
   color: string
   objectives: Objective[]
   onAdd: () => void
+  onEdit: (obj: Objective) => void
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: status })
 
@@ -219,12 +363,12 @@ function KanbanColumn({
           ref={setNodeRef}
           className={cn(
             'flex flex-col gap-2 rounded-2xl border-2 border-dashed p-2 min-h-[200px]',
-            isOver ? 'border-(--lagoon-deep) bg-[var(--lagoon-tint-4)]' : 'border-(--line)',
+            isOver ? 'border-(--lagoon-deep) bg-(--lagoon-tint-4)' : 'border-(--line)',
             'transition-colors',
           )}
         >
           {objectives.map((obj) => (
-            <ObjectiveCard key={obj._id} objective={obj} />
+            <ObjectiveCard key={obj._id} objective={obj} onClick={() => onEdit(obj)} />
           ))}
           {objectives.length === 0 && (
             <div className="flex flex-1 items-center justify-center py-8">
@@ -376,6 +520,7 @@ function ObjectivesPage() {
   const [activeId, setActiveId] = useState<string | null>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [defaultStatus, setDefaultStatus] = useState<ObjectiveStatus>('todo')
+  const [editingObjective, setEditingObjective] = useState<Objective | null>(null)
 
   const { data, isLoading } = useQuery({
     queryKey: ['objectives'],
@@ -487,6 +632,7 @@ function ObjectivesPage() {
                 color={col.color}
                 objectives={objectives.filter((o) => o.status === col.id)}
                 onAdd={() => openAdd(col.id)}
+                onEdit={setEditingObjective}
               />
             ))}
           </div>
@@ -504,6 +650,10 @@ function ObjectivesPage() {
         open={dialogOpen}
         defaultStatus={defaultStatus}
         onClose={() => setDialogOpen(false)}
+      />
+      <EditObjectiveDialog
+        objective={editingObjective}
+        onClose={() => setEditingObjective(null)}
       />
     </div>
   )
