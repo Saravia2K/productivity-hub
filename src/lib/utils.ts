@@ -43,3 +43,7 @@ export function truncate(str: string, maxLength: number): string {
   if (str.length <= maxLength) return str
   return `${str.slice(0, maxLength)}…`
 }
+
+export function formatUserOption(user: { name: string; department?: string | null }): string {
+  return user.name + (user.department ? ` · ${user.department}` : '')
+}
