@@ -5,6 +5,7 @@ import { Mail, Lock, User, Building2, Zap, Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '#/hooks/useAuth'
 import { Button } from '#/components/ui/button'
 import { Input } from '#/components/ui/input'
+import { ErrorMessage } from '#/components/ui/error-message'
 
 export const Route = createFileRoute('/register')({
   component: RegisterGuard,
@@ -162,11 +163,7 @@ function RegisterPage() {
               {...register('department')}
             />
 
-            {serverError && (
-              <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
-                {serverError}
-              </div>
-            )}
+            {serverError && <ErrorMessage>{serverError}</ErrorMessage>}
 
             <Button type="submit" loading={isSubmitting} className="w-full">
               Crear cuenta

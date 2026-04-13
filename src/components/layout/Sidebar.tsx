@@ -17,7 +17,7 @@ import { useAuth } from '#/hooks/useAuth'
 import { useAuthStore } from '#/stores/auth.store'
 import { useNotificationStore } from '#/stores/notification.store'
 import { Avatar } from '#/components/ui/avatar'
-import { Tooltip, TooltipContent, TooltipTrigger } from '#/components/ui/tooltip'
+import { SidebarNavItem } from '#/components/layout/SidebarNavItem'
 
 interface NavItem {
   label: string
@@ -57,8 +57,8 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
     <aside
       className={cn(
         'relative flex h-full flex-col',
-        'border-r border-[var(--sidebar-border)]',
-        'bg-gradient-to-b from-[var(--sidebar-bg-from)] to-[var(--sidebar-bg-to)]',
+        'border-r border-(--sidebar-border)',
+        'bg-gradient-to-b from-(--sidebar-bg-from) to-(--sidebar-bg-to)',
         'transition-[width] duration-300 ease-in-out',
         collapsed ? 'w-16' : 'w-60',
       )}
@@ -66,7 +66,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
       {/* Logo */}
       <div
         className={cn(
-          'flex h-16 items-center border-b border-[var(--sidebar-divider)] px-4',
+          'flex h-16 items-center border-b border-(--sidebar-divider) px-4',
           collapsed ? 'justify-center' : 'gap-3',
         )}
       >
@@ -74,7 +74,10 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
           <Zap className="h-4 w-4 text-white" />
         </div>
         {!collapsed && (
-          <span className="text-sm font-bold tracking-tight" style={{ color: 'var(--sidebar-brand-text)' }}>
+          <span
+            className="text-sm font-bold tracking-tight"
+            style={{ color: 'var(--sidebar-brand-text)' }}
+          >
             TeamSync
           </span>
         )}
@@ -93,9 +96,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                 'relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium',
                 'transition-all duration-150',
                 collapsed ? 'justify-center' : '',
-                active
-                  ? 'bg-[var(--sidebar-active-bg)]'
-                  : 'hover:bg-[var(--sidebar-hover-bg)]',
+                active ? 'bg-(--sidebar-active-bg)' : 'hover:bg-(--sidebar-hover-bg)',
               )}
               style={{
                 color: active ? 'var(--sidebar-active-text)' : 'var(--sidebar-text-muted)',
@@ -113,19 +114,16 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
             </Link>
           )
 
-          return collapsed ? (
-            <Tooltip key={item.to}>
-              <TooltipTrigger asChild>{linkContent}</TooltipTrigger>
-              <TooltipContent side="right">{item.label}</TooltipContent>
-            </Tooltip>
-          ) : (
-            <div key={item.to}>{linkContent}</div>
+          return (
+            <SidebarNavItem key={item.to} itemKey={item.to} label={item.label} collapsed={collapsed}>
+              {linkContent}
+            </SidebarNavItem>
           )
         })}
       </nav>
 
       {/* Bottom section */}
-      <div className="flex flex-col gap-1 border-t border-[var(--sidebar-divider)] p-2 pb-3">
+      <div className="flex flex-col gap-1 border-t border-(--sidebar-divider) p-2 pb-3">
         {BOTTOM_ITEMS.map((item) => {
           if (item.adminOnly && user?.role !== 'admin') return null
           const active = isActive(item.to)
@@ -137,9 +135,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                 'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium',
                 'transition-all duration-150',
                 collapsed ? 'justify-center' : '',
-                active
-                  ? 'bg-[var(--sidebar-active-bg)]'
-                  : 'hover:bg-[var(--sidebar-hover-bg)]',
+                active ? 'bg-(--sidebar-active-bg)' : 'hover:bg-(--sidebar-hover-bg)',
               )}
               style={{
                 color: active ? 'var(--sidebar-active-text)' : 'var(--sidebar-text-muted)',
@@ -150,13 +146,10 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
             </Link>
           )
 
-          return collapsed ? (
-            <Tooltip key={item.to}>
-              <TooltipTrigger asChild>{linkContent}</TooltipTrigger>
-              <TooltipContent side="right">{item.label}</TooltipContent>
-            </Tooltip>
-          ) : (
-            <div key={item.to}>{linkContent}</div>
+          return (
+            <SidebarNavItem key={item.to} itemKey={item.to} label={item.label} collapsed={collapsed}>
+              {linkContent}
+            </SidebarNavItem>
           )
         })}
 
@@ -164,14 +157,17 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         <div
           className={cn(
             'mt-1 flex items-center rounded-xl px-3 py-2',
-            'bg-[var(--sidebar-user-bg)]',
+            'bg-(--sidebar-user-bg)',
             collapsed ? 'justify-center' : 'gap-3',
           )}
         >
           <Avatar name={user?.name ?? 'U'} src={user?.avatar} size="sm" />
           {!collapsed && (
             <div className="min-w-0 flex-1">
-              <p className="truncate text-xs font-semibold" style={{ color: 'var(--sidebar-text)' }}>
+              <p
+                className="truncate text-xs font-semibold"
+                style={{ color: 'var(--sidebar-text)' }}
+              >
                 {user?.name}
               </p>
               <p className="truncate text-[10px]" style={{ color: 'var(--sidebar-text-muted)' }}>

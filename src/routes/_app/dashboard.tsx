@@ -16,9 +16,8 @@ import {
   MessageSquarePlus,
   Target,
   Users,
-  TrendingUp,
-  Clock,
   CheckCircle2,
+  Clock,
   Zap,
   ArrowRight,
 } from 'lucide-react'
@@ -30,14 +29,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '#/components/ui/card'
 import { Badge } from '#/components/ui/badge'
 import { Avatar } from '#/components/ui/avatar'
 import { PageSpinner } from '#/components/ui/spinner'
+import { MetricCard } from '#/components/features/dashboard/MetricCard'
 import { formatRelativeTime } from '#/lib/utils'
+import { OBJECTIVE_STATUS_COLORS, OBJECTIVE_STATUS_LABELS } from '#/constants/objectives'
 import type { DashboardMetrics } from '#/types'
 
 export const Route = createFileRoute('/_app/dashboard')({
   component: DashboardPage,
 })
 
-// ─── Mock data for UI while backend is being integrated ──────────────────────
 const MOCK_METRICS: DashboardMetrics = {
   pendingFeedback: 4,
   completedObjectives: 12,
@@ -88,59 +88,37 @@ const MOCK_METRICS: DashboardMetrics = {
   ],
 }
 
-const STATUS_COLORS: Record<string, string> = {
-  todo: '#94a3b8',
-  'in-progress': '#3b82f6',
-  'in-review': '#f59e0b',
-  completed: '#10b981',
+const QUICK_ACTIONS = [
+  {
+    label: 'Dar feedback',
+    desc: 'Comparte tu perspectiva',
+    to: '/feedback',
+    color: '#1f9790',
+    icon: <MessageSquarePlus className="h-5 w-5" />,
+  },
+  {
+    label: 'Nuevo objetivo',
+    desc: 'Añade una tarea al Kanban',
+    to: '/objectives',
+    color: '#3b82f6',
+    icon: <Target className="h-5 w-5" />,
+  },
+  {
+    label: 'Ver mi equipo',
+    desc: 'Métricas y miembros',
+    to: '/teams',
+    color: '#8b5cf6',
+    icon: <Users className="h-5 w-5" />,
+  },
+]
+
+function getGreeting(): string {
+  const h = new Date().getHours()
+  if (h < 12) return 'Buenos días'
+  if (h < 18) return 'Buenas tardes'
+  return 'Buenas noches'
 }
 
-const STATUS_LABELS: Record<string, string> = {
-  todo: 'Por hacer',
-  'in-progress': 'En progreso',
-  'in-review': 'En revisión',
-  completed: 'Completado',
-}
-
-// ─── Metric card ─────────────────────────────────────────────────────────────
-interface MetricCardProps {
-  label: string
-  value: string | number
-  icon: React.ReactNode
-  trend?: string
-  color: string
-}
-
-function MetricCard({ label, value, icon, trend, color }: MetricCardProps) {
-  return (
-    <Card>
-      <CardContent className="pt-5">
-        <div className="flex items-start justify-between">
-          <div className="space-y-2">
-            <p className="text-xs font-medium uppercase tracking-wider text-(--sea-ink-soft)">
-              {label}
-            </p>
-            <p className="text-3xl font-bold text-(--sea-ink)">{value}</p>
-            {trend && (
-              <p className="flex items-center gap-1 text-xs text-(--sea-ink-soft)">
-                <TrendingUp className="h-3 w-3 text-emerald-500" />
-                {trend}
-              </p>
-            )}
-          </div>
-          <div
-            className="flex h-11 w-11 items-center justify-center rounded-xl"
-            style={{ background: `${color}18`, color }}
-          >
-            {icon}
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  )
-}
-
-// ─── Page component ───────────────────────────────────────────────────────────
 function DashboardPage() {
   const { user } = useAuthStore()
 
@@ -152,24 +130,16 @@ function DashboardPage() {
 
   const data = metrics ?? MOCK_METRICS
 
-  const greeting = () => {
-    const h = new Date().getHours()
-    if (h < 12) return 'Buenos días'
-    if (h < 18) return 'Buenas tardes'
-    return 'Buenas noches'
-  }
-
   if (isLoading && !metrics) return <PageSpinner />
 
   return (
     <div>
       <TopBar
-        title={`${greeting()}, ${user?.name?.split(' ')[0] ?? 'Usuario'} 👋`}
+        title={`${getGreeting()}, ${user?.name?.split(' ')[0] ?? 'Usuario'} 👋`}
         subtitle="Aquí tienes el resumen de tu equipo"
       />
 
       <div className="p-6 space-y-6">
-        {/* Metric cards */}
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           <MetricCard
             label="Feedback pendiente"
@@ -200,9 +170,7 @@ function DashboardPage() {
           />
         </div>
 
-        {/* Charts row */}
         <div className="grid gap-4 lg:grid-cols-3">
-          {/* Feedback trend — area chart */}
           <Card className="lg:col-span-2">
             <CardHeader className="p-5">
               <div className="flex items-center justify-between">
@@ -224,7 +192,10 @@ function DashboardPage() {
             </CardHeader>
             <CardContent className="px-2 pb-4">
               <ResponsiveContainer width="100%" height={220}>
-                <AreaChart data={data.feedbackTrend} margin={{ top: 4, right: 12, bottom: 0, left: -16 }}>
+                <AreaChart
+                  data={data.feedbackTrend}
+                  margin={{ top: 4, right: 12, bottom: 0, left: -16 }}
+                >
                   <defs>
                     <linearGradient id="colorPositive" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#1f9790" stopOpacity={0.25} />
@@ -254,7 +225,6 @@ function DashboardPage() {
             </CardContent>
           </Card>
 
-          {/* Objectives by status — donut */}
           <Card>
             <CardHeader className="p-5">
               <CardTitle>Objetivos por estado</CardTitle>
@@ -276,7 +246,7 @@ function DashboardPage() {
                     {data.objectivesByStatus.map((entry) => (
                       <Cell
                         key={entry.status}
-                        fill={STATUS_COLORS[entry.status] ?? '#94a3b8'}
+                        fill={OBJECTIVE_STATUS_COLORS[entry.status as keyof typeof OBJECTIVE_STATUS_COLORS] ?? '#94a3b8'}
                       />
                     ))}
                   </Pie>
@@ -287,7 +257,10 @@ function DashboardPage() {
                       borderRadius: '12px',
                       fontSize: '12px',
                     }}
-                    formatter={(value, name) => [value, STATUS_LABELS[name as string] ?? name]}
+                    formatter={(value, name) => [
+                      value,
+                      OBJECTIVE_STATUS_LABELS[name as keyof typeof OBJECTIVE_STATUS_LABELS] ?? name,
+                    ]}
                   />
                 </PieChart>
               </ResponsiveContainer>
@@ -298,9 +271,9 @@ function DashboardPage() {
                     <span className="flex items-center gap-2 text-(--sea-ink-soft)">
                       <span
                         className="h-2 w-2 rounded-full"
-                        style={{ background: STATUS_COLORS[entry.status] }}
+                        style={{ background: OBJECTIVE_STATUS_COLORS[entry.status as keyof typeof OBJECTIVE_STATUS_COLORS] }}
                       />
-                      {STATUS_LABELS[entry.status]}
+                      {OBJECTIVE_STATUS_LABELS[entry.status as keyof typeof OBJECTIVE_STATUS_LABELS]}
                     </span>
                     <span className="font-semibold text-(--sea-ink)">{entry.count}</span>
                   </li>
@@ -310,14 +283,12 @@ function DashboardPage() {
           </Card>
         </div>
 
-        {/* Recent activity + quick actions */}
         <div className="grid gap-4 lg:grid-cols-3">
-          {/* Activity feed */}
           <Card className="lg:col-span-2">
             <CardHeader className="p-5">
               <div className="flex items-center justify-between">
                 <CardTitle>Actividad reciente</CardTitle>
-                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--lagoon-tint-12)]">
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-(--lagoon-tint-12)">
                   <Zap className="h-3 w-3 text-(--lagoon-deep)" />
                 </span>
               </div>
@@ -329,7 +300,7 @@ function DashboardPage() {
                     {item.user ? (
                       <Avatar name={item.user.name} src={item.user.avatar} size="sm" />
                     ) : (
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--lagoon-tint-12)]">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-(--lagoon-tint-12)">
                         <Clock className="h-4 w-4 text-(--lagoon-deep)" />
                       </div>
                     )}
@@ -345,39 +316,16 @@ function DashboardPage() {
             </CardContent>
           </Card>
 
-          {/* Quick actions */}
           <Card>
             <CardHeader className="p-5">
               <CardTitle>Acciones rápidas</CardTitle>
             </CardHeader>
             <CardContent className="pt-2 space-y-2">
-              {[
-                {
-                  label: 'Dar feedback',
-                  desc: 'Comparte tu perspectiva',
-                  to: '/feedback',
-                  color: '#1f9790',
-                  icon: <MessageSquarePlus className="h-5 w-5" />,
-                },
-                {
-                  label: 'Nuevo objetivo',
-                  desc: 'Añade una tarea al Kanban',
-                  to: '/objectives',
-                  color: '#3b82f6',
-                  icon: <Target className="h-5 w-5" />,
-                },
-                {
-                  label: 'Ver mi equipo',
-                  desc: 'Métricas y miembros',
-                  to: '/teams',
-                  color: '#8b5cf6',
-                  icon: <Users className="h-5 w-5" />,
-                },
-              ].map((action) => (
+              {QUICK_ACTIONS.map((action) => (
                 <Link
                   key={action.to}
                   to={action.to}
-                  className="flex items-center gap-3 rounded-xl border border-(--line) p-3 transition-all hover:border-(--lagoon-deep) hover:bg-[var(--lagoon-tint-4)]"
+                  className="flex items-center gap-3 rounded-xl border border-(--line) p-3 transition-all hover:border-(--lagoon-deep) hover:bg-(--lagoon-tint-4)"
                 >
                   <div
                     className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
@@ -396,7 +344,6 @@ function DashboardPage() {
           </Card>
         </div>
 
-        {/* Satisfaction banner */}
         <Card className="bg-linear-to-r from-(--sea-ink) to-[#1a4550] border-0">
           <CardContent className="flex items-center justify-between p-6">
             <div className="space-y-1">
@@ -431,7 +378,6 @@ function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Role badge */}
         {user && (
           <div className="flex items-center gap-2">
             <span className="text-xs text-(--sea-ink-soft)">Tu rol:</span>

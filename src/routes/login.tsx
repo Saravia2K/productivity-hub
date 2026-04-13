@@ -6,6 +6,7 @@ import { useAuth } from '#/hooks/useAuth'
 import { authService } from '#/services/auth.service'
 import { Button } from '#/components/ui/button'
 import { Input } from '#/components/ui/input'
+import { ErrorMessage } from '#/components/ui/error-message'
 
 export const Route = createFileRoute('/login')({
   component: LoginGuard,
@@ -139,11 +140,7 @@ function LoginPage() {
               {...register('password', { required: 'La contraseña es obligatoria.' })}
             />
 
-            {serverError && (
-              <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
-                {serverError}
-              </div>
-            )}
+            {serverError && <ErrorMessage>{serverError}</ErrorMessage>}
 
             <Button type="submit" loading={isSubmitting} className="w-full">
               Iniciar sesión
