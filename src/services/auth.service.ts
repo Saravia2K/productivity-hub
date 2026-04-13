@@ -15,6 +15,9 @@ export const authService = {
   updateProfile: (data: Partial<Pick<User, 'name' | 'bio' | 'department' | 'avatar'>>) =>
     apiClient.patch<User>('/auth/me', data).then((r) => r.data),
 
+  updateNotificationPreferences: (prefs: { email: boolean; inApp: boolean }) =>
+    apiClient.patch<User>('/auth/me', { notificationPreferences: prefs }).then((r) => r.data),
+
   changePassword: (currentPassword: string, newPassword: string) =>
     apiClient
       .patch('/auth/me/password', { currentPassword, newPassword })
